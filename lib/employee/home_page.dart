@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:serategna/employee/job_detail.dart';
 import 'package:serategna/firebase/firebasefirestore.dart';
+import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/skills.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,12 +20,10 @@ class _HomePageState extends State<HomePage> {
   late final List<String> userSkills;
   final List<String> expandedSkills = [];
 
-  Stream<QuerySnapshot> _getJobStream() {
-    return FirebaseFirestore.instance.collection('jobs').snapshots();
-  }
+  
 
   void _fetchUserSkills() async {
-    List<String> skills = await Firestore.getUserSkills();
+    List<String> skills = await FirestoreUser.getUserSkills();
     setState(() {
       userSkills = skills;
       log(userSkills.toString());
@@ -63,7 +62,7 @@ class _HomePageState extends State<HomePage> {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: _getJobStream(),
+              stream: FirestoreJobs.getJobStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

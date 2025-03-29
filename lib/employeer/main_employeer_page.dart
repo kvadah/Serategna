@@ -5,8 +5,10 @@ import 'package:serategna/employeer/aplicants_page.dart';
 import 'package:serategna/employeer/profile_page.dart';
 
 class FirstEmployerPage extends StatefulWidget {
+  const FirstEmployerPage({super.key});
+
   @override
-  _FirstEmployerPageState createState() => _FirstEmployerPageState();
+  State<FirstEmployerPage> createState() => _FirstEmployerPageState();
 }
 
 class _FirstEmployerPageState extends State<FirstEmployerPage> {
@@ -15,7 +17,7 @@ class _FirstEmployerPageState extends State<FirstEmployerPage> {
   final List<Widget> _screens = [
     const HomePage(),
     const ApplicantsPage(),
-    AddJobPage(),
+    const AddJobPage(),
     const ProfilePage(),
   ];
 

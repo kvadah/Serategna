@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:serategna/employee/home_page.dart';
 import 'package:serategna/employee/users_additional_info.dart';
 import 'package:serategna/employeer/home_page.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
-import 'package:serategna/firebase/firebasefirestore.dart';
+import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/signup.dart';
 
 class VerifyEmailPage extends StatefulWidget {
@@ -29,16 +27,16 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   }
 
   Future<void> checkEmailVerified() async {
-    await FirebaseAuth.instance.currentUser?.reload();
+    await Firebaseauth.getCurrentUser()?.reload();
     setState(() {
-      isVerified = FirebaseAuth.instance.currentUser?.emailVerified ?? false;
+      isVerified = Firebaseauth.getCurrentUser()?.emailVerified ?? false;
     });
 
     if (isVerified) {
       timer?.cancel();
-      user = FirebaseAuth.instance.currentUser; // Get updated user data
+      user = Firebaseauth.getCurrentUser(); // Get updated user data
 
-      Map<String, dynamic>? data = await Firestore.getUserData(user);
+      Map<String, dynamic>? data = await FirestoreUser.getUserData(user);
 
       if (user!.emailVerified) {
         // Now emailVerified will be up-to-date
@@ -54,7 +52,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         } else {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => Home()),
+            MaterialPageRoute(builder: (context) => const Home()),
             (route) => false,
           );
         }
@@ -72,13 +70,15 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
   Future<void> sendVerificationEmail() async {
     try {
-      await FirebaseAuth.instance.currentUser?.sendEmailVerification();
+     
+      await Firebaseauth.sendVerificationEmail();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Verification email sent! Check your inbox.')),
+        const SnackBar(
+            content: Text('Verification email sent! Check your inbox.')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send email. Try again later.')),
+        const SnackBar(content: Text('Failed to send email. Try again later.')),
       );
     }
   }
@@ -87,7 +87,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Verify Your Email"),
+        title: const Text("Verify Your Email"),
         // backgroundColor: const Color.fromARGB(255, 249, 251, 252),
       ),
       body: Center(

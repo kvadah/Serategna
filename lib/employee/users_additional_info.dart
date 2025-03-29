@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
-
 import 'package:serategna/employee/first_page.dart';
+import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/skills.dart';
 
 class SkillSelectionPage extends StatefulWidget {
@@ -12,14 +11,12 @@ class SkillSelectionPage extends StatefulWidget {
   const SkillSelectionPage({super.key, required this.userId});
 
   @override
-  _SkillSelectionPageState createState() => _SkillSelectionPageState();
+  State<SkillSelectionPage> createState() => _SkillSelectionPageState();
 }
 
 class _SkillSelectionPageState extends State<SkillSelectionPage> {
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _skillSearchController = TextEditingController();
-
-  
 
   List<String> filteredSkills = [];
   List<String> selectedSkills = [];
@@ -42,7 +39,8 @@ class _SkillSelectionPageState extends State<SkillSelectionPage> {
   }
 
   void _saveUserData() async {
-    try {
+    FirestoreUser.saveAdditionalUserData(widget.userId, _bioController.text, selectedSkills);
+   /* try {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(widget.userId)
@@ -55,7 +53,7 @@ class _SkillSelectionPageState extends State<SkillSelectionPage> {
     } catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Error: $e')));
-    }
+    }*/
   }
 
   @override
@@ -134,7 +132,7 @@ class _SkillSelectionPageState extends State<SkillSelectionPage> {
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => BottomNavScreen()),
+                              builder: (context) => const BottomNavScreen()),
                           (route) => false);
                     },
                     child: const Text("Skip")),
@@ -144,7 +142,7 @@ class _SkillSelectionPageState extends State<SkillSelectionPage> {
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => BottomNavScreen()),
+                              builder: (context) =>const  BottomNavScreen()),
                           (route) => false);
                     },
                     child: const Text("Save")),

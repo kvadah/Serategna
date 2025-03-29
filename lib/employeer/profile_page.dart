@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +41,7 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     } catch (error) {
-      print("Error fetching company data: $error");
+      log("Error fetching company data: $error");
     }
   }
 

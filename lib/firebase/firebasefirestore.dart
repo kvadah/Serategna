@@ -1,31 +1,16 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class Firestore {
+class FirestoreJobs {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  static Future<void> saveUserData(String fullName, String phone, String email,
-      String userType, User? user) async {
-    if (user != null) {
-      try {
-        await _firestore.collection('users').doc(user.uid).set({
-          'fullName': fullName,
-          'phone': phone,
-          'email': email,
-          'userType':
-              userType, // Store whether the user is Employee or Employer
-        });
-        log("User data saved successfully.");
-      } catch (e) {
-        log("Error saving user data: $e");
-      }
-    }
+  static Stream<QuerySnapshot> getJobStream() {
+    return FirebaseFirestore.instance.collection('jobs').snapshots();
   }
 
   static Future<void> addJob(
-    String Companyname,
+    String companyName,
     String title,
     String location,
     String description,
@@ -35,10 +20,10 @@ class Firestore {
       DocumentSnapshot userData =
           await _firestore.collection('users').doc(user.uid).get();
       if (userData.exists) {
-        String companyName = userData['fullName'];
+        //String companyName = userData['fullName'];
         await _firestore.collection('jobs').add({
           'title': title,
-          'companyName': Companyname,
+          'companyName': companyName,
           'location': location,
           'description': description,
           'totalApplicants': 0,
@@ -91,71 +76,21 @@ class Firestore {
         // Store the job ID for reference
       });
 
-      print('Job added successfully');
+      log('Job added successfully');
     } catch (e) {
-      print('Error adding job: $e');
+      log('Error adding job: $e');
     }
   }
 
-  static Future<Map<String, dynamic>?> getUserData(User? user) async {
-    if (user != null) {
-      try {
-        DocumentSnapshot snapshot =
-            await _firestore.collection('users').doc(user.uid).get();
 
-        if (snapshot.exists) {
-          return snapshot.data() as Map<String, dynamic>;
-        } else {
-          log("User data not found.");
-          return null;
-        }
-      } catch (e) {
-        log("Error retrieving user data: $e");
-        return null;
-      }
-    } else {
-      log("No user is currently logged in.");
-      return null;
-    }
-  }
+  /*Future<List<String>> removeSkill(String skill) {
+    User? user = Firebaseauth.getCurrentUser();
+    if (user == null) return;
 
-  static Future<List<String>> getUserSkills() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception("User not logged in");
-      }
-
-      final docSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      if (docSnapshot.exists) {
-        Map<String, dynamic> data = docSnapshot.data() ?? {};
-        return List<String>.from(data['skills'] ?? []);
-      } else {
-        return [];
-      }
-    } catch (e) {
-      print("Error fetching skills: $e");
-      return [];
-    }
-  }
-
-  static Future<Map<String, dynamic>?> getUserDocument(User? user) async {
-    try {
-      DocumentSnapshot userSnapshot =
-          await _firestore.collection("users").doc(user?.uid).get();
-
-      if (userSnapshot.exists) {
-        return userSnapshot.data() as Map<String, dynamic>;
-      }
-    } catch (e) {
-      print("Error fetching user data: $e");
-    }
-    return null;
-  }
+    _firestore.collection("users").doc(user!.uid).update({
+      "skills": FieldValue.arrayRemove([skill])
+    });
+  }*/
 
   static Future<bool> applyForJob(
       String userId, String jobId, String about) async {
@@ -222,12 +157,13 @@ class Firestore {
 
       // Commit the batch
       await batch.commit();
-      print("Application successful!");
+      log("Application successful!");
       // Return false to indicate a successful application
     } catch (e) {
-      print("Error applying for job: $e");
+      log("Error applying for job: $e");
       // Return true to indicate an error
     }
     return false;
   }
+
 }

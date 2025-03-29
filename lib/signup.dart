@@ -3,9 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:serategna/email_verify_page.dart';
-import 'package:serategna/employee/home_page.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
-import 'package:serategna/firebase/firebasefirestore.dart';
+import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/signin.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -38,7 +37,7 @@ class _SignUpPageState extends State<SignUpPage> {
         });
       }
       if (user != null) {
-        Firestore.saveUserData(
+        FirestoreUser.saveUserData(
             _fullNameController.text.trim(),
             _phoneController.text.trim(),
             _emailController.text.trim(),
@@ -210,7 +209,7 @@ class _SignUpPageState extends State<SignUpPage> {
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.black),
           labelText: label,
-          labelStyle: TextStyle(color: Colors.black54),
+          labelStyle: const TextStyle(color: Colors.black54),
           filled: true,
           fillColor: Colors.white,
           border: OutlineInputBorder(
@@ -223,7 +222,7 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(color: Colors.black),
+            borderSide: const BorderSide(color: Colors.black),
           ),
         ),
         keyboardType: keyboardType,

@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:serategna/email_verify_page.dart';
 import 'package:serategna/employee/first_page.dart';
-import 'package:serategna/employee/home_page.dart';
-import 'package:serategna/employeer/home_page.dart';
-import 'package:serategna/employeer/main_employeer-page.dart';
+import 'package:serategna/employeer/main_employeer_page.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
-import 'package:serategna/firebase/firebasefirestore.dart';
+import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/signup.dart';
 
 class SignIn extends StatefulWidget {
@@ -35,7 +33,7 @@ class _SignInState extends State<SignIn> {
           await user.reload(); // 🔴 Important: Refresh user data
           user = FirebaseAuth.instance.currentUser; // Get updated user data
 
-          Map<String, dynamic>? data = await Firestore.getUserData(user);
+          Map<String, dynamic>? data = await FirestoreUser.getUserData(user);
 
           if (user!.emailVerified) {
             // Now emailVerified will be up-to-date
@@ -208,7 +206,7 @@ class _SignInState extends State<SignIn> {
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.black),
           labelText: label,
-          labelStyle: TextStyle(color: Colors.black54),
+          labelStyle: const TextStyle(color: Colors.black54),
           filled: true,
           fillColor: Colors.white,
           border: OutlineInputBorder(
@@ -221,7 +219,7 @@ class _SignInState extends State<SignIn> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(color: Colors.black),
+            borderSide: const BorderSide(color: Colors.black),
           ),
         ),
         keyboardType: keyboardType,

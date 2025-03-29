@@ -4,8 +4,10 @@ import 'package:serategna/employee/home_page.dart';
 import 'package:serategna/employee/profile_page.dart';
 
 class BottomNavScreen extends StatefulWidget {
+  const BottomNavScreen({super.key});
+
   @override
-  _BottomNavScreenState createState() => _BottomNavScreenState();
+  State<BottomNavScreen> createState() => _BottomNavScreenState();
 }
 
 class _BottomNavScreenState extends State<BottomNavScreen> {

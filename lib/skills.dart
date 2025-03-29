@@ -371,7 +371,8 @@ Map<String, List<String>> relatedSkills = {
   "Graphic Designer": [
     "UI/UX Designer",
     "Motion Graphics Designer",
-    "Product Designer"
+    "Product Designer",
+    "Illustrator"
   ],
   "UI/UX Designer": [
     "Graphic Designer",
@@ -446,11 +447,7 @@ Map<String, List<String>> relatedSkills = {
   "Pharmacist": ["Medical Researcher", "Biochemist", "Doctor"],
 
   // Creative & Art
-  "Graphic Designer": [
-    "UI Designer",
-    "Motion Graphics Designer",
-    "Illustrator"
-  ],
+  
   "Photographer": ["Videographer", "Photo Editor", "Filmmaker"],
   "Writer": ["Editor", "Copywriter", "Content Writer"],
   "Musician": ["DJ", "Audio Engineer", "Sound Engineer"],

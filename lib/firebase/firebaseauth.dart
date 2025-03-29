@@ -1,7 +1,9 @@
+
+
 import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+
 
 class Firebaseauth {
   // Instance of FirebaseAuth
@@ -29,7 +31,7 @@ class Firebaseauth {
       // Handle different FirebaseAuth exceptions
     } catch (e) {
       // Catch other exceptions
-      print('Error: $e');
+      log('Error: $e');
       return null;
     }
   }
@@ -48,7 +50,7 @@ class Firebaseauth {
     } on FirebaseAuthException catch (e) {
       throw FirebaseAuthException;
     } catch (e) {
-      print('Error: $e');
+      log('Error: $e');
       return null;
     }
   }
@@ -61,6 +63,7 @@ class Firebaseauth {
     try {
       await _auth.currentUser?.sendEmailVerification();
      
+    // ignore: empty_catches
     } catch (e) {
      
     }

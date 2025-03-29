@@ -14,7 +14,7 @@ class JobDetailsPage extends StatefulWidget {
   const JobDetailsPage({super.key, required this.job, required this.jobId});
 
   @override
-  _JobDetailsPageState createState() => _JobDetailsPageState();
+  State<JobDetailsPage> createState() => _JobDetailsPageState();
 }
 
 class _JobDetailsPageState extends State<JobDetailsPage> {
@@ -36,7 +36,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
 
   void _submitApplication() async {
     User? user = Firebaseauth.getCurrentUser();
-    bool alreadyapplied = await Firestore.applyForJob(
+    bool alreadyapplied = await FirestoreJobs.applyForJob(
         user!.uid, widget.jobId, _descriptionController.text.trim());
     log(widget.jobId);
     if (alreadyapplied) {

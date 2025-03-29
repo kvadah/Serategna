@@ -1,10 +1,9 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:serategna/employeer/applicants_list.dart';
-import 'package:serategna/firebase/firebaseauth.dart';
+import 'package:serategna/firebase/firestore_user.dart';
 
 class ApplicantsPage extends StatefulWidget {
   const ApplicantsPage({super.key});
@@ -17,22 +16,14 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
   late Stream<QuerySnapshot> _applicationsStream;
 
   // Fetch the user's applications from Firestore
-  Stream<QuerySnapshot> _getUserApplicationsStream() {
-    var userId = Firebaseauth.getCurrentUser()?.uid; // Get the current user ID
-
-    // Access the user's document in the 'users' collection and fetch their 'myApplications' subcollection
-    return FirebaseFirestore.instance
-        .collection('users') // Reference to the 'users' collection
-        .doc(userId) // Document for the current user
-        .collection('jobsPost') // Subcollection with the user's applications
-        .snapshots(); // Stream of documents in that subcollection
+  void _fetchUserApplicationsStream() {
+    _applicationsStream = FirestoreUser.getUserApplicationsStream();
   }
 
   @override
   void initState() {
     super.initState();
-    _applicationsStream =
-        _getUserApplicationsStream(); // Set the stream for user applications
+    _fetchUserApplicationsStream(); // Set the stream for user applications
   }
 
   @override

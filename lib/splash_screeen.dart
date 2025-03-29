@@ -1,16 +1,12 @@
 import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:serategna/email_verify_page.dart';
 import 'package:serategna/employee/first_page.dart';
-import 'package:serategna/employee/home_page.dart';
-import 'package:serategna/employeer/home_page.dart';
-import 'package:serategna/employeer/main_employeer-page.dart';
+import 'package:serategna/employeer/main_employeer_page.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
-import 'package:serategna/firebase/firebasefirestore.dart';
+import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/signin.dart';
 import 'package:serategna/signup.dart';
 
@@ -55,13 +51,13 @@ class _SplashScreenState extends State<SplashScreen> {
       );
     } else {
       if (user.emailVerified) {
-        Map<String, dynamic>? data = await Firestore.getUserData(user);
+        Map<String, dynamic>? data = await FirestoreUser.getUserData(user);
         if (data?['userType'] == 'Employee') {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    BottomNavScreen()), // Navigate to SignUpPage
+                   const BottomNavScreen()), // Navigate to SignUpPage
             (Route<dynamic> route) => false, // Remove all routes from the stack
           );
         } else {
@@ -69,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    FirstEmployerPage()), // Navigate to SignUpPage
+                   const FirstEmployerPage()), // Navigate to SignUpPage
             (Route<dynamic> route) => false, // Remove all routes from the stack
           );
         }
