@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:serategna/employee/users_additional_info.dart';
 import 'package:serategna/employeer/home_page.dart';
+import 'package:serategna/employeer/main_employeer_page.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/signup.dart';
@@ -52,7 +53,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         } else {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => const Home()),
+            MaterialPageRoute(builder: (context) => const FirstEmployerPage()),
             (route) => false,
           );
         }

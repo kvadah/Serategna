@@ -41,7 +41,7 @@ class FirestoreJobs {
     try {
       if (user != null) {
         DocumentSnapshot userData =
-            await _firestore.collection('users').doc(user.uid).get();
+            await _firestore.collection('companies').doc(user.uid).get();
         if (userData.exists) {
           companyName = userData['fullName'];
         }
@@ -62,7 +62,7 @@ class FirestoreJobs {
 
       // Add the job to the 'jobsPost' subcollection of the company
       await FirebaseFirestore.instance
-          .collection('users')
+          .collection('companies')
           .doc(user!.uid)
           .collection('jobsPost')
           .doc(jobRef.id) // Use the jobRef.id to ensure the same job is added
@@ -81,7 +81,6 @@ class FirestoreJobs {
       log('Error adding job: $e');
     }
   }
-
 
   /*Future<List<String>> removeSkill(String skill) {
     User? user = Firebaseauth.getCurrentUser();
@@ -107,7 +106,7 @@ class FirestoreJobs {
       // Check if the user has already applied
       DocumentSnapshot existingApplication = await applicantRef.get();
       if (existingApplication.exists) {
-        print("You have already applied for this job.");
+        log("You have already applied for this job.");
         return true; // Return true to indicate duplicate application
       }
 
@@ -166,4 +165,12 @@ class FirestoreJobs {
     return false;
   }
 
+  static Stream<QuerySnapshot> getCompaniesPostStream(String userId) {
+    // Access the user's document in the 'users' collection and fetch their 'myApplications' subcollection
+    return FirebaseFirestore.instance
+        .collection('companies') // Reference to the 'users' collection
+        .doc(userId) // Document for the current user
+        .collection('jobsPost') // Subcollection with the user's applications
+        .snapshots(); // Stream of documents in that subcollection
+  }
 }

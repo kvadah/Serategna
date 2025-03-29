@@ -32,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _fetchCompanyData() async {
     try {
       DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection("users")
+          .collection("companies")
           .doc(user?.uid)
           .get();
       if (doc.exists) {

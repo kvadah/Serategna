@@ -1,8 +1,11 @@
 import 'dart:developer';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:serategna/employeer/applicants_list.dart';
+import 'package:serategna/firebase/firebaseauth.dart';
+import 'package:serategna/firebase/firebasefirestore.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 
 class ApplicantsPage extends StatefulWidget {
@@ -17,8 +20,14 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
 
   // Fetch the user's applications from Firestore
   void _fetchUserApplicationsStream() {
-    _applicationsStream = FirestoreUser.getUserApplicationsStream();
+  User? user = Firebaseauth.getCurrentUser();
+  if (user != null) {
+    _applicationsStream = FirestoreJobs.getCompaniesPostStream(user.uid);
+  } else {
+    log("User is null. Unable to fetch applications.");
   }
+}
+
 
   @override
   void initState() {

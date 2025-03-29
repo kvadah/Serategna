@@ -4,28 +4,38 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 
-class FirestoreUser{
+class FirestoreUser {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   //save user date on register
   static Future<void> saveUserData(String fullName, String phone, String email,
       String userType, User? user) async {
     if (user != null) {
       try {
-        await _firestore.collection('users').doc(user.uid).set({
-          'fullName': fullName,
-          'phone': phone,
-          'email': email,
-          'userType':
-              userType, // Store whether the user is Employee or Employer
-        });
+        if (userType == 'Employee') {
+          await _firestore.collection('users').doc(user.uid).set({
+            'fullName': fullName,
+            'phone': phone,
+            'email': email,
+            'userType':
+                userType, // Store whether the user is Employee or Employer
+          });
+        } else {
+          await _firestore.collection('companies').doc(user.uid).set({
+            'fullName': fullName,
+            'phone': phone,
+            'email': email,
+            'userType':
+                userType, // Store whether the user is Employee or Employer
+          });
+        }
+
         log("User data saved successfully.");
       } catch (e) {
         log("Error saving user data: $e");
       }
     }
   }
-
 
 // additional user data
   static Future<void> saveAdditionalUserData(
@@ -40,9 +50,8 @@ class FirestoreUser{
     } catch (e) {}
   }
 
+  //retrieve user data
 
-  //retrieve user data 
-  
   static Future<Map<String, dynamic>?> getUserData(User? user) async {
     if (user != null) {
       try {
@@ -64,7 +73,6 @@ class FirestoreUser{
       return null;
     }
   }
-
 
 // get user skills to filter out jobs
 
@@ -92,8 +100,6 @@ class FirestoreUser{
     }
   }
 
-
-
   static Future<Map<String, dynamic>?> getUserDocument(User? user) async {
     try {
       DocumentSnapshot userSnapshot =
@@ -109,16 +115,17 @@ class FirestoreUser{
   }
 
   //get users applications list
-  
+
   static Stream<QuerySnapshot> getUserApplicationsStream() {
     var userId = Firebaseauth.getCurrentUser()?.uid; // Get the current user ID
 
-    // Access the user's document in the 'users' collection and fetch their 'myApplications' subcollection
     return FirebaseFirestore.instance
         .collection('users') // Reference to the 'users' collection
         .doc(userId) // Document for the current user
         .collection(
             'myApplications') // Subcollection with the user's applications
+        .orderBy('appliedAt',
+            descending: true) // Sort by timeStamp (newest first)
         .snapshots(); // Stream of documents in that subcollection
   }
 }
