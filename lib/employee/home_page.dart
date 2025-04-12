@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:serategna/employee/job_detail.dart';
+import 'package:serategna/employeer/company_detail.dart';
 import 'package:serategna/firebase/firebasefirestore.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/skills.dart';
@@ -19,8 +20,6 @@ class _HomePageState extends State<HomePage> {
   String _searchQuery = "";
   late final List<String> userSkills;
   final List<String> expandedSkills = [];
-
-  
 
   void _fetchUserSkills() async {
     List<String> skills = await FirestoreUser.getUserSkills();
@@ -128,6 +127,7 @@ class _HomePageState extends State<HomePage> {
                   itemCount: jobsToDisplay.length,
                   itemBuilder: (context, index) {
                     var jobData = jobsToDisplay[index];
+                    String companyId = jobData['companyId']??"";
 
                     return Card(
                       shape: RoundedRectangleBorder(
@@ -150,7 +150,15 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(width: 8),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>  CompanyJobsPage(
+                                            companyId: companyId, companyName: jobData['companyName'],),
+                                      ),
+                                    );
+                                  },
                                   child: Text(
                                     jobData['companyName']!,
                                     style: const TextStyle(

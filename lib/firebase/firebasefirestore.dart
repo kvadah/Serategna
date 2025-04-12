@@ -51,6 +51,7 @@ class FirestoreJobs {
           await FirebaseFirestore.instance.collection('jobs').add({
         'companyName': companyName,
         'title': title,
+        'companyId':user!.uid,
         'description': description,
         'deadline':
             deadline?.toIso8601String(), // Save the deadline as ISO8601 string
@@ -63,7 +64,7 @@ class FirestoreJobs {
       // Add the job to the 'jobsPost' subcollection of the company
       await FirebaseFirestore.instance
           .collection('companies')
-          .doc(user!.uid)
+          .doc(user.uid)
           .collection('jobsPost')
           .doc(jobRef.id) // Use the jobRef.id to ensure the same job is added
           .set({
