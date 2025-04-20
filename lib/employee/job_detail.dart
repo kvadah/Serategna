@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firebasefirestore.dart';
 
@@ -22,6 +23,9 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
   String? _cvFilePath;
   final TextEditingController _descriptionController = TextEditingController();
   bool _isJobExpired = false;
+
+  final InternetConnectionChecker internetChecker =
+      InternetConnectionChecker.createInstance();
 
   Future<void> _pickCV() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -53,7 +57,48 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
     }
   }
 
+  Future<bool> _checkInternetConnection() async {
+    await Future.delayed(
+        const Duration(milliseconds: 300)); // Splash screen duration
+
+    bool isConnected = await internetChecker.hasConnection;
+
+    if (isConnected) {
+      return true;
+    }
+    return false;
+  }
+
+  void _showNoInternetDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // Prevents dismissing the dialog by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("No Internet Connection"),
+          content: const Text(
+              "Please check your internet connection and try again."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Retry checking
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _submitApplication() async {
+    bool isInternateActive = await _checkInternetConnection();
+    if (!isInternateActive) {
+      _showNoInternetDialog();
+      return;
+    }
     if (_descriptionController.text.trim().isEmpty) {
       Fluttertoast.showToast(
         msg: "Please describe about yourself before applying.",
