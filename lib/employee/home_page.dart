@@ -25,7 +25,6 @@ class _HomePageState extends State<HomePage> {
     List<String> skills = await FirestoreUser.getUserSkills();
     setState(() {
       userSkills = skills;
-      log(userSkills.toString());
     });
   }
 
@@ -79,6 +78,10 @@ class _HomePageState extends State<HomePage> {
                 List<Map<String, dynamic>> matchedJobs = [];
                 List<Map<String, dynamic>> otherJobs = [];
                 List<Map<String, dynamic>> relatedJobs = [];
+                List<Map<String, dynamic>> matchedExpiredJobs = [];
+                List<Map<String, dynamic>> relatedExpiredJobs = [];
+                List<Map<String, dynamic>> otherExpiredJobs = [];
+                final now = DateTime.now();
                 for (var skill in userSkills) {
                   if (relatedSkills.containsKey(skill)) {
                     expandedSkills.addAll(relatedSkills[skill]!);
@@ -86,6 +89,19 @@ class _HomePageState extends State<HomePage> {
                 }
 
                 for (var job in allJobs) {
+                  Timestamp? deadlineTimestamp = job['deadline'];
+                  DateTime deadline = DateTime.now();
+                  if (deadlineTimestamp != null) {
+                    deadline = deadlineTimestamp.toDate();
+                    log(deadline.toString());
+                  }
+                  final String title =
+                      (job['title'] ?? '').toString().toLowerCase();
+                  final String description =
+                      (job['description'] ?? '').toString().toLowerCase();
+
+                  // Check if any skill matches and job is not expired
+
                   bool matchesSkill = userSkills.any((skill) =>
                       job['title']
                           .toLowerCase()
@@ -100,21 +116,31 @@ class _HomePageState extends State<HomePage> {
                       job['description']
                           .toLowerCase()
                           .contains(skill.toLowerCase()));
-                  if (matchesSkill) {
+                  if (matchesSkill && deadline.isBefore(now)) {
+                    matchedExpiredJobs.add(job);
+                  } else if (matchesSkill && deadline.isAfter(now)) {
                     matchedJobs.add(job);
-                  } else if (relatesSkill) {
+                  } else if (relatesSkill && deadline.isBefore(now)) {
+                    relatedExpiredJobs.add(job);
+                  } else if (relatesSkill && deadline.isAfter(now)) {
+                    relatedJobs.add(job);
+                  } else if (deadline.isAfter(now)) {
                     relatedJobs.add(job);
                   } else {
-                    otherJobs.add(job);
+                    otherExpiredJobs.add(job);
                   }
                 }
                 matchedJobs.shuffle();
                 otherJobs.shuffle();
-
+                matchedExpiredJobs.shuffle();
+                log(matchedExpiredJobs.toString());
                 List<Map<String, dynamic>> jobsToDisplay = [
                   ...matchedJobs,
                   ...relatedJobs,
-                  ...otherJobs
+                  ...otherJobs,
+                  ...matchedExpiredJobs,
+                  ...relatedExpiredJobs,
+                  ...otherExpiredJobs,
                 ];
 
                 jobsToDisplay = jobsToDisplay.where((job) {
@@ -127,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                   itemCount: jobsToDisplay.length,
                   itemBuilder: (context, index) {
                     var jobData = jobsToDisplay[index];
-                    String companyId = jobData['companyId']??"";
+                    String companyId = jobData['companyId'] ?? "";
 
                     return Card(
                       shape: RoundedRectangleBorder(
@@ -154,8 +180,10 @@ class _HomePageState extends State<HomePage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) =>  CompanyJobsPage(
-                                            companyId: companyId, companyName: jobData['companyName'],),
+                                        builder: (context) => CompanyJobsPage(
+                                          companyId: companyId,
+                                          companyName: jobData['companyName'],
+                                        ),
                                       ),
                                     );
                                   },

@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -20,6 +21,7 @@ class JobDetailsPage extends StatefulWidget {
 class _JobDetailsPageState extends State<JobDetailsPage> {
   String? _cvFilePath;
   final TextEditingController _descriptionController = TextEditingController();
+  bool _isJobExpired = false;
 
   Future<void> _pickCV() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -34,7 +36,34 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _checkJobDeadline();
+  }
+
+  void _checkJobDeadline() {
+    Timestamp? deadlineTimestamp = widget.job['deadline'];
+    if (deadlineTimestamp != null) {
+      DateTime deadline = deadlineTimestamp.toDate();
+      _isJobExpired = deadline.isBefore(DateTime.now());
+      log(deadline.toString());
+    } else {
+      _isJobExpired = false; // If no deadline is set, assume it's valid
+    }
+  }
+
   void _submitApplication() async {
+    if (_descriptionController.text.trim().isEmpty) {
+      Fluttertoast.showToast(
+        msg: "Please describe about yourself before applying.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.orange,
+        textColor: Colors.white,
+      );
+      return;
+    }
     User? user = Firebaseauth.getCurrentUser();
     bool alreadyapplied = await FirestoreJobs.applyForJob(
         user!.uid, widget.jobId, _descriptionController.text.trim());
@@ -119,16 +148,28 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
               ),
             ),
             const SizedBox(height: 30),
+            if (_isJobExpired)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  "Application deadline has passed.",
+                  style:
+                      TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+              ),
+            const SizedBox(height: 30),
 
             // Apply Button
             Center(
               child: ElevatedButton.icon(
-                onPressed: () {
-                  _submitApplication();
-                },
-                icon: const Icon(Icons.send),
-                label: const Text('Apply Now'),
-              ),
+                  onPressed: () {
+                    _isJobExpired ? null : _submitApplication();
+                  },
+                  icon: const Icon(Icons.send),
+                  label: const Text('Apply Now'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isJobExpired ? Colors.grey : null,
+                  )),
             ),
           ],
         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 
 class ApplicationsPage extends StatefulWidget {
@@ -29,8 +29,8 @@ Stream<QuerySnapshot> _getUserApplicationsStream() {
   @override
   void initState() {
     super.initState();
-    _applicationsStream =
-        FirestoreUser.getUserApplicationsStream(); // Set the stream for user applications
+    _applicationsStream = FirestoreUser
+        .getUserApplicationsStream(); // Set the stream for user applications
   }
 
   @override
@@ -101,12 +101,6 @@ Stream<QuerySnapshot> _getUserApplicationsStream() {
                       Text('Title: ${applicationData['title'] ?? 'Unknown'}',
                           style: const TextStyle(
                               fontSize: 14, fontWeight: FontWeight.bold)),
-                      Text(
-                          'Location: ${applicationData['location'] ?? 'Unknown'}',
-                          style: const TextStyle(fontSize: 14)),
-                      //const SizedBox(height: 8),
-                      /*Text(applicationData['description'] ?? 'No description',
-                          maxLines: 2, overflow: TextOverflow.ellipsis),*/
                       const SizedBox(height: 10),
                       Text('Applied at: $appliedAtDate',
                           style: const TextStyle(
