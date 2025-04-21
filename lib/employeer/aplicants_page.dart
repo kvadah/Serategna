@@ -20,14 +20,13 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
 
   // Fetch the user's applications from Firestore
   void _fetchUserApplicationsStream() {
-  User? user = Firebaseauth.getCurrentUser();
-  if (user != null) {
-    _applicationsStream = FirestoreJobs.getCompaniesPostStream(user.uid);
-  } else {
-    log("User is null. Unable to fetch applications.");
+    User? user = Firebaseauth.getCurrentUser();
+    if (user != null) {
+      _applicationsStream = FirestoreJobs.getCompaniesPostStream(user.uid);
+    } else {
+      log("User is null. Unable to fetch applications.");
+    }
   }
-}
-
 
   @override
   void initState() {
@@ -92,12 +91,8 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                         Text('Title: ${jobData['title'] ?? 'Unknown'}',
                             style: const TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold)),
-                        Text(
-                            'description: ${jobData['description'] ?? 'Unknown'}',
-                            style: const TextStyle(fontSize: 14)),
-                        //const SizedBox(height: 8),
-                        /*Text(jobData['description'] ?? 'No description',
-                            maxLines: 2, overflow: TextOverflow.ellipsis),*/
+                        Text(jobData['description'] ?? 'No description',
+                            maxLines: 2, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 10),
                         Text('Posted at: $appliedAtDate',
                             style: const TextStyle(

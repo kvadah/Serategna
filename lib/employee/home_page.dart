@@ -200,6 +200,9 @@ class _HomePageState extends State<HomePage> {
                             Text('Title: ${jobData['title']!}',
                                 style: const TextStyle(
                                     fontSize: 14, fontWeight: FontWeight.bold)),
+                            Text('Job Type: ${jobData['jobType']!}',
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold)),
                             Text('Location: ${jobData['location']!}',
                                 style: const TextStyle(fontSize: 14)),
                             const SizedBox(height: 8),

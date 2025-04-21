@@ -35,7 +35,7 @@ class FirestoreJobs {
     }
   }
 
-  static Future<void> addJobToCompanyAndJobsCollection(User? user, String title,
+  static Future<void> addJobToCompanyAndJobsCollection(User? user, String title,String jobType,
       String location, String description, DateTime? deadline) async {
     String companyName = 'Anonymous';
     try {
@@ -51,11 +51,12 @@ class FirestoreJobs {
           await FirebaseFirestore.instance.collection('jobs').add({
         'companyName': companyName,
         'title': title,
-        'companyId':user!.uid,
+        'jobType': jobType,
+        'companyId': user!.uid,
         'description': description,
-        'deadline':
-            deadline?.toIso8601String(), // Save the deadline as ISO8601 string
-
+        'deadline': deadline != null
+            ? Timestamp.fromDate(deadline)
+            : null, 
         'location': location,
         'totalApplicants': 0,
         'timeStamp': FieldValue.serverTimestamp(), // Optional, for timestamp

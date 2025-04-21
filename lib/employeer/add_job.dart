@@ -17,6 +17,8 @@ class _AddJobPageState extends State<AddJobPage> {
   final TextEditingController _deadlineController =
       TextEditingController(); // Controller for deadline
   DateTime? _selectedDeadline;
+  final List<String> jobTypes = ['Full-time', 'Part-time', 'Internship'];
+  String? selectedJobType;
 
   @override
   void initState() {
@@ -57,6 +59,28 @@ class _AddJobPageState extends State<AddJobPage> {
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Job Title'),
               ),
+              const SizedBox(height: 20),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Job Type',
+                  // border: OutlineInputBorder(),
+                ),
+                value: selectedJobType,
+                items: jobTypes.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(type),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedJobType = value;
+                  });
+                },
+                validator: (value) =>
+                    value == null ? 'Please select a job type' : null,
+              ),
+
               TextField(
                 controller: _locationController,
                 decoration: const InputDecoration(labelText: 'Location'),
@@ -66,7 +90,7 @@ class _AddJobPageState extends State<AddJobPage> {
                 maxLines: 4,
                 decoration: const InputDecoration(labelText: 'Job Description'),
               ),
-             const SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Deadline field
               TextField(
                 controller: _deadlineController,
@@ -83,14 +107,15 @@ class _AddJobPageState extends State<AddJobPage> {
                 onPressed: () {
                   if (_selectedDeadline == null) {
                     // Show an error if deadline is not selected
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please select a deadline')));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Please select a deadline')));
                     return;
                   }
                   User? user = Firebaseauth.getCurrentUser();
                   FirestoreJobs.addJobToCompanyAndJobsCollection(
                     user,
                     _titleController.text,
+                    selectedJobType!,
                     _locationController.text,
                     _descriptionController.text,
                     _selectedDeadline, // Add the deadline date
