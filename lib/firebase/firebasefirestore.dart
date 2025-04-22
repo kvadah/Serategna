@@ -35,8 +35,13 @@ class FirestoreJobs {
     }
   }
 
-  static Future<void> addJobToCompanyAndJobsCollection(User? user, String title,String jobType,
-      String location, String description, DateTime? deadline) async {
+  static Future<void> addJobToCompanyAndJobsCollection(
+      User? user,
+      String title,
+      String jobType,
+      String location,
+      String description,
+      DateTime? deadline) async {
     String companyName = 'Anonymous';
     try {
       if (user != null) {
@@ -54,9 +59,7 @@ class FirestoreJobs {
         'jobType': jobType,
         'companyId': user!.uid,
         'description': description,
-        'deadline': deadline != null
-            ? Timestamp.fromDate(deadline)
-            : null, 
+        'deadline': deadline != null ? Timestamp.fromDate(deadline) : null,
         'location': location,
         'totalApplicants': 0,
         'timeStamp': FieldValue.serverTimestamp(), // Optional, for timestamp
@@ -152,6 +155,7 @@ class FirestoreJobs {
       batch.set(applicationRef, {
         'company': company,
         'title': title,
+        'status': 'pending',
         'description': description,
         'appliedAt': FieldValue.serverTimestamp(),
       });

@@ -74,37 +74,74 @@ Stream<QuerySnapshot> _getUserApplicationsStream() {
                     borderRadius: BorderRadius.circular(10)),
                 child: Padding(
                   padding: const EdgeInsets.all(11.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Stack(
                     children: [
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.asset(
-                              'assets/images/black_logo_transparent-removebg-preview.png',
-                              width: 20,
-                              height: 20,
-                              fit: BoxFit.cover,
+                          Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.asset(
+                                  'assets/images/black_logo_transparent-removebg-preview.png',
+                                  width: 20,
+                                  height: 20,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                applicationData['company'] ?? 'Unknown',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            'Title: ${applicationData['title'] ?? 'Unknown'}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(height: 10),
                           Text(
-                            applicationData['company'] ?? 'Unknown',
+                            'Applied at: $appliedAtDate',
                             style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black),
+                              fontSize: 14,
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
                         ],
                       ),
-                      Text('Title: ${applicationData['title'] ?? 'Unknown'}',
-                          style: const TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 10),
-                      Text('Applied at: $appliedAtDate',
-                          style: const TextStyle(
-                              fontSize: 14, fontStyle: FontStyle.italic)),
+                      // Status badge
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.blueAccent,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            applicationData['status']
+                                    ?.toString()
+                                    .toUpperCase() ??
+                                'PENDING',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
