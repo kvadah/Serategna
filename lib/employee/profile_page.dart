@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
-import 'package:serategna/firebase/firebasefirestore.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/signin.dart';
 import 'package:serategna/skills.dart';
@@ -301,38 +300,39 @@ class SkillsSection extends StatelessWidget {
       ),
     );
   }
-void _addSkillDialog(BuildContext context) {
-  FocusScope.of(context).unfocus(); // Unfocus any active input field
-  
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Select a Skill"),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: allSkills.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(allSkills[index]),
-                onTap: () {
-                  onSkillAdded(allSkills[index]);
-                  Navigator.pop(context);
-                },
-              );
-            },
+
+  void _addSkillDialog(BuildContext context) {
+    FocusScope.of(context).unfocus(); // Unfocus any active input field
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Select a Skill"),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: allSkills.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(allSkills[index]),
+                  onTap: () {
+                    onSkillAdded(allSkills[index]);
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Save"),
-          ),
-        ],
-      );
-    },
-  );
-}
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

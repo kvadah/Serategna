@@ -1,0 +1,187 @@
+import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:serategna/firebase/firestore_user.dart';
+
+class ApplicantReviewPage extends StatefulWidget {
+  final String applicationId;
+  final String jobId;
+
+  const ApplicantReviewPage({
+    super.key,
+    required this.applicationId,
+    required this.jobId,
+  });
+
+  @override
+  State<ApplicantReviewPage> createState() => _ApplicantReviewPageState();
+}
+
+class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
+  String profileImageUrl = "";
+  String? selectedStatus;
+
+  final List<String> statusOptions = [
+    'Pending',
+    'Interview Scheduled',
+    'Rejected',
+    'Hired',
+  ];
+
+  bool isLoadingStatus = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStatus();
+  }
+
+  Future<void> _fetchStatus() async {
+    final status = await FirestoreUser.getStatusFromUserAndApplication(
+      widget.applicationId,
+      widget.jobId,
+    );
+
+    setState(() {
+      selectedStatus = status ?? 'Pending'; // default if null
+      isLoadingStatus = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Applicant',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: isLoadingStatus
+          ? const Center(child: CircularProgressIndicator())
+          : FutureBuilder<DocumentSnapshot>(
+              future: FirebaseFirestore.instance
+                  .collection('jobs')
+                  .doc(widget.jobId)
+                  .collection('applicants')
+                  .doc(widget.applicationId)
+                  .get(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
+                if (!snapshot.hasData || !snapshot.data!.exists) {
+                  return const Center(child: Text("No data found."));
+                }
+
+                final data = snapshot.data!.data() as Map<String, dynamic>;
+
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage: profileImageUrl.isNotEmpty
+                            ? NetworkImage(profileImageUrl)
+                            : null,
+                        child: profileImageUrl.isEmpty
+                            ? const Icon(Icons.person, size: 60)
+                            : null,
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        "${data['fullName'] ?? 'N/A'}",
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        "${data['email'] ?? 'N/A'}",
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 20),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.blue),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "About the Applicant",
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              data['about'] ?? 'No additional information.',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Status: ",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          DropdownButton<String>(
+                            value: selectedStatus,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() => selectedStatus = value);
+                                FirestoreUser.updateStatusInUserAndApplications(
+                                  widget.applicationId,
+                                  widget.jobId,
+                                  value,
+                                );
+                              }
+                            },
+                            items: statusOptions
+                                .map((status) => DropdownMenuItem(
+                                      value: status,
+                                      child: Text(status),
+                                    ))
+                                .toList(),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      const TextField(
+                        maxLines: 5,
+                        decoration: InputDecoration(
+                          hintText: 'Enter your message...',
+                          border: OutlineInputBorder(),
+                          alignLabelWithHint: true,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          log("Message sent");
+                        },
+                        icon: const Icon(Icons.send),
+                        label: const Text("Send"),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}

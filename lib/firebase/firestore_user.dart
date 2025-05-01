@@ -128,4 +128,51 @@ class FirestoreUser {
             descending: true) // Sort by timeStamp (newest first)
         .snapshots(); // Stream of documents in that subcollection
   }
+
+  static Future<void> updateStatusInUserAndApplications(
+      String userId, // User ID for the user in the 'users' collection
+      String
+          applicationId, // Document ID in the 'my applications' sub-collection
+      String newStatus) async {
+    try {
+      // Update the status in the 'my applications' sub-collection
+      await FirebaseFirestore.instance
+          .collection('users') // Assuming 'users' is the collection
+          .doc(userId)
+          .collection(
+              'myApplications') // Sub-collection where applications are stored
+          .doc(applicationId)
+          .update({
+        'status': newStatus, // Update status for the specific application
+      });
+
+      log('Status updated successfully!');
+    } catch (e) {
+      log('Error updating status: $e');
+    }
+  }
+  static Future<String?> getStatusFromUserAndApplication(
+    String userId,  // User ID for the user in the 'users' collection
+    String applicationId) async {  // Document ID in the 'my applications' sub-collection
+  try {
+    // Fetch the status from the 'my applications' sub-collection
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('myApplications')  // Sub-collection where applications are stored
+        .doc(applicationId)
+        .get();
+
+    if (snapshot.exists) {
+      var data = snapshot.data() as Map<String, dynamic>;
+      return data['status'];  // Return the status
+    } else {
+      log('No document found for application ID: $applicationId');
+      return null;  // Return null if document doesn't exist
+    }
+  } catch (e) {
+    log('Error getting status: $e');
+    return null;  // Return null if an error occurs
+  }
+}
 }

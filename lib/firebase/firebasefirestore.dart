@@ -87,15 +87,7 @@ class FirestoreJobs {
     }
   }
 
-  /*Future<List<String>> removeSkill(String skill) {
-    User? user = Firebaseauth.getCurrentUser();
-    if (user == null) return;
-
-    _firestore.collection("users").doc(user!.uid).update({
-      "skills": FieldValue.arrayRemove([skill])
-    });
-  }*/
-
+  
   static Future<bool> applyForJob(
       String userId, String jobId, String about) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
