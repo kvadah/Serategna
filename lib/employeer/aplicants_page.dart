@@ -6,7 +6,6 @@ import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:serategna/employeer/applicants_list.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firebasefirestore.dart';
-import 'package:serategna/firebase/firestore_user.dart';
 
 class ApplicantsPage extends StatefulWidget {
   const ApplicantsPage({super.key});

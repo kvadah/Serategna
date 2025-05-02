@@ -19,7 +19,8 @@ class _SignInState extends State<SignIn> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  void _signIn() async {
+  void _signIn() async { 
+    //change the text to loading animation to simulate logging
     setState(() => _isLoading = true);
 
     if (_formKey.currentState!.validate()) {
@@ -34,26 +35,29 @@ class _SignInState extends State<SignIn> {
           user = FirebaseAuth.instance.currentUser; // Get updated user data
 
           Map<String, dynamic>? data = await FirestoreUser.getUserData(user);
-
+            //check if user email is verified
           if (user!.emailVerified) {
-            // Now emailVerified will be up-to-date
-            // Navigate based on user type
+            //and if user is employee direct him/her to employee to employe system
             if (data?['userType'] == 'Employee') {
               Navigator.pushAndRemoveUntil(
+                // ignore: use_build_context_synchronously
                 context,
-                MaterialPageRoute(builder: (context) =>  BottomNavScreen()),
+                MaterialPageRoute(builder: (context) =>  const EmployeeFirstPage()),
                 (Route<dynamic> route) => false,
               );
+              //if employer
             } else {
               Navigator.pushAndRemoveUntil(
+                // ignore: use_build_context_synchronously
                 context,
-                MaterialPageRoute(builder: (context) => FirstEmployerPage ()),
+                MaterialPageRoute(builder: (context) => const FirstEmployerPage ()),
                 (Route<dynamic> route) => false,
               );
             }
           } else {
             Firebaseauth.sendVerificationEmail();
             Navigator.push(
+              // ignore: use_build_context_synchronously
               context,
               MaterialPageRoute(builder: (context) => VerifyEmailPage()),
             );
@@ -62,10 +66,11 @@ class _SignInState extends State<SignIn> {
           throw "Invalid credentials. Please try again.";
         }
       } catch (e) {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  "Error: ($e)")), // Remove .message since e might be a String
+                  "Error: ($e)")), 
         );
       }
       setState(() => _isLoading = false);
@@ -135,7 +140,7 @@ class _SignInState extends State<SignIn> {
                     // Forgot Password Link
                     TextButton(
                       onPressed: () {
-                        // Add the functionality for forgot password here
+                        
                       },
                       child: const Text("Forgot Password?"),
                     ),

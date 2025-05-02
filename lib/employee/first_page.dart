@@ -3,14 +3,14 @@ import 'package:serategna/employee/applications_page.dart';
 import 'package:serategna/employee/home_page.dart';
 import 'package:serategna/employee/profile_page.dart';
 
-class BottomNavScreen extends StatefulWidget {
-  const BottomNavScreen({super.key});
+class EmployeeFirstPage extends StatefulWidget {
+  const EmployeeFirstPage({super.key});
 
   @override
-  State<BottomNavScreen> createState() => _BottomNavScreenState();
+  State<EmployeeFirstPage> createState() => _EmployeeFirstPageState();
 }
 
-class _BottomNavScreenState extends State<BottomNavScreen> {
+class _EmployeeFirstPageState extends State<EmployeeFirstPage> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [

@@ -14,19 +14,6 @@ class ApplicationsPage extends StatefulWidget {
 class _ApplicationsPageState extends State<ApplicationsPage> {
   late Stream<QuerySnapshot> _applicationsStream;
 
-  // Fetch the user's applications from Firestore
-  /*
-Stream<QuerySnapshot> _getUserApplicationsStream() {
-    var userId = Firebaseauth.getCurrentUser()?.uid; // Get the current user ID
-
-    // Access the user's document in the 'users' collection and fetch their 'myApplications' subcollection
-    return FirebaseFirestore.instance
-        .collection('users') // Reference to the 'users' collection
-        .doc(userId) // Document for the current user
-        .collection(
-            'myApplications') // Subcollection with the user's applications
-        .snapshots(); // Stream of documents in that subcollection
-  }*/
   @override
   void initState() {
     super.initState();

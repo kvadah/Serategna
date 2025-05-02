@@ -9,31 +9,7 @@ class FirestoreJobs {
     return FirebaseFirestore.instance.collection('jobs').snapshots();
   }
 
-  static Future<void> addJob(
-    String companyName,
-    String title,
-    String location,
-    String description,
-  ) async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      DocumentSnapshot userData =
-          await _firestore.collection('users').doc(user.uid).get();
-      if (userData.exists) {
-        //String companyName = userData['fullName'];
-        await _firestore.collection('jobs').add({
-          'title': title,
-          'companyName': companyName,
-          'location': location,
-          'description': description,
-          'totalApplicants': 0,
-          'status': 'active',
-          'timeStamp': FieldValue.serverTimestamp(),
-        });
-        // Refresh job list
-      }
-    }
-  }
+ 
 
   static Future<void> addJobToCompanyAndJobsCollection(
       User? user,
@@ -86,6 +62,12 @@ class FirestoreJobs {
       log('Error adding job: $e');
     }
   }
+
+
+
+
+
+
 
   
   static Future<bool> applyForJob(
@@ -162,6 +144,14 @@ class FirestoreJobs {
     }
     return false;
   }
+
+
+
+
+
+
+
+
 
   static Stream<QuerySnapshot> getCompaniesPostStream(String userId) {
     // Access the user's document in the 'users' collection and fetch their 'myApplications' subcollection

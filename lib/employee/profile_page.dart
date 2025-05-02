@@ -35,6 +35,7 @@ class _ProfileState extends State<Profile> {
       appBar: AppBar(
         title: const Text("Profile"),
       ),
+      //future builder
       body: FutureBuilder<Map<String, dynamic>?>(
         future: FirestoreUser.getUserDocument(user),
         builder: (context, snapshot) {

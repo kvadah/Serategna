@@ -7,7 +7,7 @@ import 'package:serategna/firebase/firebaseauth.dart';
 class FirestoreUser {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  //save user date on register
+  //save user data on register
   static Future<void> saveUserData(String fullName, String phone, String email,
       String userType, User? user) async {
     if (user != null) {
@@ -38,6 +38,7 @@ class FirestoreUser {
   }
 
 // additional user data
+//let users add bio,skills on register
   static Future<void> saveAdditionalUserData(
       String userId, String bio, List<String> selectedSkills) async {
     try {
@@ -50,8 +51,7 @@ class FirestoreUser {
     } catch (e) {}
   }
 
-  //retrieve user data
-
+//retrieve user data
   static Future<Map<String, dynamic>?> getUserData(User? user) async {
     if (user != null) {
       try {
@@ -95,11 +95,12 @@ class FirestoreUser {
         return [];
       }
     } catch (e) {
-      print("Error fetching skills: $e");
+      log("Error fetching skills: $e");
       return [];
     }
   }
 
+//user document for profile page
   static Future<Map<String, dynamic>?> getUserDocument(User? user) async {
     try {
       DocumentSnapshot userSnapshot =
@@ -114,21 +115,23 @@ class FirestoreUser {
     return null;
   }
 
-  //get users applications list
-
+  //get users applications list for application page
   static Stream<QuerySnapshot> getUserApplicationsStream() {
     var userId = Firebaseauth.getCurrentUser()?.uid; // Get the current user ID
 
     return FirebaseFirestore.instance
-        .collection('users') // Reference to the 'users' collection
-        .doc(userId) // Document for the current user
+        .collection('users') 
+        .doc(userId)
         .collection(
-            'myApplications') // Subcollection with the user's applications
+            'myApplications') 
         .orderBy('appliedAt',
-            descending: true) // Sort by timeStamp (newest first)
-        .snapshots(); // Stream of documents in that subcollection
+            descending: true) 
+        .snapshots(); 
   }
 
+
+
+//get a specif application detail for further look
   static Future<Map<String, dynamic>?> fetchApplicationDetails(
       String applicationId) async {
     var userId = Firebaseauth.getCurrentUser()?.uid;
@@ -153,21 +156,23 @@ class FirestoreUser {
     }
   }
 
+
+// to change user's application status as the company changes
   static Future<void> updateStatusInUserAndApplications(
-      String userId, // User ID for the user in the 'users' collection
+      String userId, 
       String
-          applicationId, // Document ID in the 'my applications' sub-collection
+          applicationId, 
       String newStatus) async {
     try {
       // Update the status in the 'my applications' sub-collection
       await FirebaseFirestore.instance
-          .collection('users') // Assuming 'users' is the collection
+          .collection('users') 
           .doc(userId)
           .collection(
-              'myApplications') // Sub-collection where applications are stored
+              'myApplications') 
           .doc(applicationId)
           .update({
-        'status': newStatus, // Update status for the specific application
+        'status': newStatus, 
       });
 
       log('message sent successfully!');
@@ -176,18 +181,21 @@ class FirestoreUser {
     }
   }
 
+
+
+  // when a company sends a message to a user to a specific application
   static Future<void> sendMessageToUser(
-      String userId, // User ID for the user in the 'users' collection
+      String userId,
       String
-          applicationId, // Document ID in the 'my applications' sub-collection
+          applicationId, 
       String message) async {
     try {
-      // Update the status in the 'my applications' sub-collection
+      
       await FirebaseFirestore.instance
-          .collection('users') // Assuming 'users' is the collection
+          .collection('users') 
           .doc(userId)
           .collection(
-              'myApplications') // Sub-collection where applications are stored
+              'myApplications') 
           .doc(applicationId)
           .set({'message': message}, SetOptions(merge: true));
 
@@ -197,17 +205,19 @@ class FirestoreUser {
     }
   }
 
+
+
+
   static Future<String?> getStatusFromUserAndApplication(
-      String userId, // User ID for the user in the 'users' collection
+      String userId, 
       String applicationId) async {
-    // Document ID in the 'my applications' sub-collection
     try {
       // Fetch the status from the 'my applications' sub-collection
       DocumentSnapshot snapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
           .collection(
-              'myApplications') // Sub-collection where applications are stored
+              'myApplications')
           .doc(applicationId)
           .get();
 

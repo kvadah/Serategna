@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -47,7 +46,6 @@ class _ApplicationDetailsPageState extends State<ApplicationDetailsPage> {
           final String appliedAt = appliedAtTimestamp != null
               ? DateFormat('dd/MM/yyyy').format(appliedAtTimestamp.toDate())
               : 'Unknown';
-
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -114,7 +112,7 @@ class _ApplicationDetailsPageState extends State<ApplicationDetailsPage> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          data['message'] ?? 'No additional information.',
+                          data['message'] ?? 'no message.',
                           style: const TextStyle(fontSize: 14),
                         ),
                       ],

@@ -40,20 +40,7 @@ class _SkillSelectionPageState extends State<SkillSelectionPage> {
 
   void _saveUserData() async {
     FirestoreUser.saveAdditionalUserData(widget.userId, _bioController.text, selectedSkills);
-   /* try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.userId)
-          .update({
-        'bio': _bioController.text,
-        'skills': selectedSkills,
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')));
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: $e')));
-    }*/
+   
   }
 
   @override
@@ -132,7 +119,7 @@ class _SkillSelectionPageState extends State<SkillSelectionPage> {
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const BottomNavScreen()),
+                              builder: (context) => const EmployeeFirstPage()),
                           (route) => false);
                     },
                     child: const Text("Skip")),
@@ -142,7 +129,7 @@ class _SkillSelectionPageState extends State<SkillSelectionPage> {
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>const  BottomNavScreen()),
+                              builder: (context) =>const  EmployeeFirstPage()),
                           (route) => false);
                     },
                     child: const Text("Save")),

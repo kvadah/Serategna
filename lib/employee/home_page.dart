@@ -95,12 +95,8 @@ class _HomePageState extends State<HomePage> {
                     deadline = deadlineTimestamp.toDate();
                     log(deadline.toString());
                   }
-                  final String title =
-                      (job['title'] ?? '').toString().toLowerCase();
-                  final String description =
-                      (job['description'] ?? '').toString().toLowerCase();
-
-                  // Check if any skill matches and job is not expired
+                  
+                  
 
                   bool matchesSkill = userSkills.any((skill) =>
                       job['title']

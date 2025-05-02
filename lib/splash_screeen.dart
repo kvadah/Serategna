@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -41,15 +43,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _navigateToHome() async {
     User? user = Firebaseauth.getCurrentUser();
-    log(user.toString());
+    //no user direct them to sign up page
     if (user == null) {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-            builder: (context) => SignUpPage()), // Navigate to SignUpPage
-        (Route<dynamic> route) => false, // Remove all routes from the stack
+            builder: (context) => SignUpPage()),
+        (Route<dynamic> route) => false, 
       );
     } else {
+      //if user exists and is email verified direct them based on user type(employee/employer)
       if (user.emailVerified) {
         Map<String, dynamic>? data = await FirestoreUser.getUserData(user);
         if (data?['userType'] == 'Employee') {
@@ -57,28 +60,29 @@ class _SplashScreenState extends State<SplashScreen> {
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                   const BottomNavScreen()), // Navigate to SignUpPage
-            (Route<dynamic> route) => false, // Remove all routes from the stack
+                   const EmployeeFirstPage()), 
+            (Route<dynamic> route) => false, 
           );
         } else {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                   const FirstEmployerPage()), // Navigate to SignUpPage
-            (Route<dynamic> route) => false, // Remove all routes from the stack
+                   const FirstEmployerPage()), 
+            (Route<dynamic> route) => false, 
           );
         }
 
         log('message');
       } else {
+       // if user exists but nor email verified direct them to email verify page
         Firebaseauth.sendVerificationEmail();
         Future.delayed(const Duration(seconds: 1));
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
               builder: (context) => SignIn()), // Navigate to SignUpPage
-          (Route<dynamic> route) => false, // Remove all routes from the stack
+          (Route<dynamic> route) => false, 
         );
       }
     }
@@ -163,8 +167,7 @@ class _SplashScreenState extends State<SplashScreen> {
           child: CircularProgressIndicator(strokeWidth: 5),
         ),
         SizedBox(width: 5),
-        //  Text("Loading...",
-        //  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        
       ],
     );
   }
