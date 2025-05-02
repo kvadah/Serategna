@@ -20,7 +20,7 @@ class ApplicantReviewPage extends StatefulWidget {
 class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
   String profileImageUrl = "";
   String? selectedStatus;
-
+  TextEditingController messageController = TextEditingController();
   final List<String> statusOptions = [
     'Pending',
     'Interview Scheduled',
@@ -161,9 +161,10 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      const TextField(
+                      TextField(
                         maxLines: 5,
-                        decoration: InputDecoration(
+                        controller: messageController,
+                        decoration: const InputDecoration(
                           hintText: 'Enter your message...',
                           border: OutlineInputBorder(),
                           alignLabelWithHint: true,
@@ -172,7 +173,8 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
                       const SizedBox(height: 10),
                       ElevatedButton.icon(
                         onPressed: () {
-                          log("Message sent");
+                          FirestoreUser.sendMessageToUser(widget.applicationId,
+                              widget.jobId, messageController.text);
                         },
                         icon: const Icon(Icons.send),
                         label: const Text("Send"),
