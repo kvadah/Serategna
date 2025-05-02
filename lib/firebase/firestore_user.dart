@@ -129,6 +129,30 @@ class FirestoreUser {
         .snapshots(); // Stream of documents in that subcollection
   }
 
+  static Future<Map<String, dynamic>?> fetchApplicationDetails(
+      String applicationId) async {
+    var userId = Firebaseauth.getCurrentUser()?.uid;
+    try {
+      final docRef = FirebaseFirestore.instance
+          .collection('users') // Reference to the 'users' collection
+          .doc(userId) // Document for the current user
+          .collection('myApplications')
+          .doc(applicationId);
+
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        return docSnapshot.data();
+      } else {
+        log('No application found for ID: $applicationId');
+        return null;
+      }
+    } catch (e) {
+      log('Error fetching application details: $e');
+      return null;
+    }
+  }
+
   static Future<void> updateStatusInUserAndApplications(
       String userId, // User ID for the user in the 'users' collection
       String
