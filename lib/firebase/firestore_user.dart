@@ -233,4 +233,26 @@ class FirestoreUser {
       return null; // Return null if an error occurs
     }
   }
+
+
+
+   static Stream<QuerySnapshot> getUserNotificationsStream(String userId) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('notifications')
+        .orderBy('time', descending: true)
+        .snapshots();
+  }
+
+  static Future<int> getUnreadNotificationCount(String userId) async {
+    final query = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('notifications')
+        .where('status', isEqualTo: 'new')
+        .get();
+
+    return query.docs.length;
+  }
 }
