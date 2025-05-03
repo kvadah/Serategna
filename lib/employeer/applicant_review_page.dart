@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:serategna/firebase/firestore_user.dart';
@@ -19,6 +21,9 @@ class ApplicantReviewPage extends StatefulWidget {
 class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
   String profileImageUrl = "";
   String? selectedStatus;
+  String companyName = 'kk';
+  String title = 'll';
+  String message = '';
   TextEditingController messageController = TextEditingController();
   final List<String> statusOptions = [
     'Pending',
@@ -32,7 +37,19 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
   @override
   void initState() {
     super.initState();
+    fetchTitleandCompany();
     _fetchStatus();
+  }
+
+  void fetchTitleandCompany() async {
+    final result = await FirestoreUser.getTitleAndCompany(
+        widget.applicantId, widget.jobId);
+    
+    if (result != null) {
+      title = result['title']!;
+      companyName = result['company']!;
+      log('title $title company $companyName');
+    }
   }
 
   Future<void> _fetchStatus() async {
@@ -45,6 +62,34 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
       selectedStatus = status ?? 'Pending'; // default if null
       isLoadingStatus = false;
     });
+  }
+
+  String _buildApplicationStatusNotification({
+    required String companyName,
+    required String jobTitle,
+    required String? status,
+  }) {
+    String statusMessage;
+
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        statusMessage = 'is currently pending review';
+        break;
+      case 'rejected':
+        statusMessage = 'has been rejected';
+        break;
+      case 'hired':
+        statusMessage = 'has been marked as hired 🎉';
+        break;
+      case 'interview scheduled':
+        statusMessage = 'has an interview scheduled';
+        break;
+      default:
+        statusMessage = 'has been updated';
+    }
+
+    return 'Your application for "$jobTitle" at $companyName $statusMessage. '
+        'Please check your application for more details.';
   }
 
   @override
@@ -149,6 +194,14 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
                                   value,
                                 );
                               }
+                              setState(() {
+                                message = _buildApplicationStatusNotification(
+                                    companyName: companyName,
+                                    jobTitle: title,
+                                    status: selectedStatus);
+                              });
+                              FirestoreUser.sendStatusChangeNotification(
+                                  widget.applicantId, message);
                             },
                             items: statusOptions
                                 .map((status) => DropdownMenuItem(

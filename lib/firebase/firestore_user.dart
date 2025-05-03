@@ -233,15 +233,12 @@ class FirestoreUser {
     return query.docs.length;
   }
 
-
-
- static  Future<void> markNotificationsAsRead() async {
-   
+  static Future<void> markNotificationsAsRead() async {
     final userId = Firebaseauth.getCurrentUser()?.uid;
     if (userId == null) return;
 
     try {
-       await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
       final snapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -267,11 +264,55 @@ class FirestoreUser {
           .collection('notifications')
           .where('status', isEqualTo: 'new')
           .snapshots()
-          .listen((snapshot) {
-       
-        
-      });
+          .listen((snapshot) {});
     }
-    return   snapshot.docs.length;
+    return snapshot.docs.length;
+  }
+
+  static Future<void> sendStatusChangeNotification(
+      String uid, String message) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('notifications')
+          .add({
+        'message': message,
+        'status': 'new',
+
+        'time': FieldValue.serverTimestamp(), // Optional, for timestamp
+      });
+
+      log('notification sent');
+    } catch (e) {
+      log('cound not send notificaion: $e');
+    }
+  }
+
+  static Future<Map<String, String>?> getTitleAndCompany(
+      String userId, String applicationId) async {
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('myApplications')
+          .doc(applicationId)
+          .get();
+
+      if (snapshot.exists) {
+        var data = snapshot.data() as Map<String, dynamic>;
+        String title = data['title'] ?? '';
+        String company = data['company'] ?? '';
+        log('title $title company $company');
+
+        return {'title': title, 'company': company};
+      } else {
+        log('No document found for application ID: $applicationId');
+        return null;
+      }
+    } catch (e) {
+      log('Error getting title and company: $e');
+      return null;
+    }
   }
 }
