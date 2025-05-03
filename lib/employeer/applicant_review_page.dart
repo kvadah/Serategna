@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 
 class ApplicantReviewPage extends StatefulWidget {
-  final String applicationId;
+  final String applicantId;
   final String jobId;
 
   const ApplicantReviewPage({
     super.key,
-    required this.applicationId,
+    required this.applicantId,
     required this.jobId,
   });
 
@@ -37,7 +37,7 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
 
   Future<void> _fetchStatus() async {
     final status = await FirestoreUser.getStatusFromUserAndApplication(
-      widget.applicationId,
+      widget.applicantId,
       widget.jobId,
     );
 
@@ -63,7 +63,7 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
                   .collection('jobs')
                   .doc(widget.jobId)
                   .collection('applicants')
-                  .doc(widget.applicationId)
+                  .doc(widget.applicantId)
                   .get(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -144,7 +144,7 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
                               if (value != null) {
                                 setState(() => selectedStatus = value);
                                 FirestoreUser.updateStatusInUserAndApplications(
-                                  widget.applicationId,
+                                  widget.applicantId,
                                   widget.jobId,
                                   value,
                                 );
@@ -172,7 +172,7 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
                       const SizedBox(height: 10),
                       ElevatedButton.icon(
                         onPressed: () {
-                          FirestoreUser.sendMessageToUser(widget.applicationId,
+                          FirestoreUser.sendMessageToUser(widget.applicantId,
                               widget.jobId, messageController.text);
                         },
                         icon: const Icon(Icons.send),

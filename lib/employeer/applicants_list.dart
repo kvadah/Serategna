@@ -3,7 +3,8 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:serategna/employeer/applicant_review_page.dart'; // For formatting date
+import 'package:serategna/employeer/applicant_review_page.dart';
+import 'package:serategna/firebase/firebasefirestore.dart'; // For formatting date
 
 class ApplicantsListPage extends StatelessWidget {
   final String jobId;
@@ -15,11 +16,7 @@ class ApplicantsListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("Applicants")),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection("jobs")
-            .doc(jobId)
-            .collection("applicants")
-            .snapshots(),
+        stream: FirestoreJobs.getJobApplicantsStream(jobId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -51,11 +48,11 @@ class ApplicantsListPage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                           builder: (context) => ApplicantReviewPage(
-                                applicationId: applicantId,
+                                applicantId: applicantId,
                                 jobId: jobId,
                               )));
                   log(applicantId);
-                   log(jobId);
+                  log(jobId);
                 },
                 child: Card(
                   shape: RoundedRectangleBorder(

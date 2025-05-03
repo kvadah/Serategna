@@ -9,8 +9,6 @@ class FirestoreJobs {
     return FirebaseFirestore.instance.collection('jobs').snapshots();
   }
 
- 
-
   static Future<void> addJobToCompanyAndJobsCollection(
       User? user,
       String title,
@@ -63,13 +61,6 @@ class FirestoreJobs {
     }
   }
 
-
-
-
-
-
-
-  
   static Future<bool> applyForJob(
       String userId, String jobId, String about) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -145,14 +136,6 @@ class FirestoreJobs {
     return false;
   }
 
-
-
-
-
-
-
-
-
   static Stream<QuerySnapshot> getCompaniesPostStream(String userId) {
     // Access the user's document in the 'users' collection and fetch their 'myApplications' subcollection
     return FirebaseFirestore.instance
@@ -160,5 +143,29 @@ class FirestoreJobs {
         .doc(userId) // Document for the current user
         .collection('jobsPost') // Subcollection with the user's applications
         .snapshots(); // Stream of documents in that subcollection
+  }
+
+  static Stream<QuerySnapshot> getJobApplicantsStream(String jobId) {
+    return FirebaseFirestore.instance
+        .collection("jobs")
+        .doc(jobId)
+        .collection("applicants")
+        .snapshots();
+  }
+  static Future<Map<String,dynamic>?> getCompanyData(String? uid) async{
+ try {
+      DocumentSnapshot doc = await FirebaseFirestore.instance
+          .collection("companies")
+          .doc(uid)
+          .get();
+      if (doc.exists) {
+       
+          return doc.data() as Map<String, dynamic>?;
+        
+      }
+    } catch (error) {
+      log("Error fetching company data: $error");
+    }
+ return null;
   }
 }

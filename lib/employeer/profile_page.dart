@@ -1,9 +1,7 @@
-import 'dart:developer';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
+import 'package:serategna/firebase/firebasefirestore.dart';
 import 'package:serategna/signin.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -30,18 +28,12 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _fetchCompanyData() async {
-    try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection("companies")
-          .doc(user?.uid)
-          .get();
-      if (doc.exists) {
-        setState(() {
-          companyData = doc.data() as Map<String, dynamic>?;
-        });
-      }
-    } catch (error) {
-      log("Error fetching company data: $error");
+    //companyData = await FirestoreJobs.getCompanyData(user?.uid);
+    final data = await FirestoreJobs.getCompanyData(user?.uid ?? '');
+    if (data != null) {
+      setState(() {
+        companyData = data;
+      });
     }
   }
 
