@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 
-
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
 
@@ -20,18 +19,22 @@ class _NotificationsPageState extends State<NotificationsPage> {
   void initState() {
     super.initState();
     userId = Firebaseauth.getCurrentUser()?.uid;
-    _fetchNewNotificationCount();
   }
 
-  void _fetchNewNotificationCount() async {
-    if (userId != null) {
-      int count = await FirestoreUser.getUnreadNotificationCount(userId!);
-      setState(() {
-        newNotificationCount = count;
-      });
+  String _formatDateForGroup(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final notificationDate = DateTime(date.year, date.month, date.day);
+
+    if (notificationDate == today) {
+      return 'Today';
+    } else if (notificationDate == yesterday) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('dd MMM yyyy').format(notificationDate);
     }
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -41,21 +44,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
-        actions: [
-          if (newNotificationCount > 0)
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0, top: 12),
-              child: CircleAvatar(
-                backgroundColor: Colors.red,
-                radius: 12,
-                child: Text(
-                  newNotificationCount.toString(),
-                  style: const TextStyle(fontSize: 12, color: Colors.white),
-                ),
-              ),
-            ),
-        ],
+        title: const Text(
+          'Notifications',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirestoreUser.getUserNotificationsStream(userId!),
@@ -70,24 +62,56 @@ class _NotificationsPageState extends State<NotificationsPage> {
             return const Center(child: Text("No notifications."));
           }
 
-          return ListView.builder(
-            itemCount: notifications.length,
-            itemBuilder: (context, index) {
-              var data = notifications[index].data() as Map<String, dynamic>;
-              var message = data['message'] ?? '';
-              var status = data['status'] ?? 'read';
-              var timestamp = (data['time'] as Timestamp).toDate();
-              var formattedTime = DateFormat('dd MMM yyyy – hh:mm a').format(timestamp);
+          // Group notifications by date
+          final Map<String, List<Map<String, dynamic>>> grouped = {};
 
-              return ListTile(
-                leading: Icon(
-                  status == 'new' ? Icons.notifications_active : Icons.notifications_none,
-                  color: status == 'new' ? Colors.red : Colors.grey,
-                ),
-                title: Text(message),
-                subtitle: Text(formattedTime),
+          for (var doc in notifications) {
+            var data = doc.data() as Map<String, dynamic>;
+            var timestamp = (data['time'] as Timestamp).toDate();
+
+            String key = _formatDateForGroup(timestamp);
+            if (!grouped.containsKey(key)) {
+              grouped[key] = [];
+            }
+            grouped[key]!.add(data);
+          }
+
+          return ListView(
+            children: grouped.entries.map((entry) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8),
+                    child: Text(
+                      entry.key,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  ...entry.value.map((data) {
+                    var message = data['message'] ?? '';
+                    var status = data['status'] ?? 'read';
+                    var timestamp = (data['time'] as Timestamp).toDate();
+                    var formattedTime = DateFormat('hh:mm a').format(timestamp);
+
+                    return Card(
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.notifications_active,
+                          color: status == 'new' ? Colors.red : Colors.grey,
+                        ),
+                        title: Text(message),
+                        subtitle: Text(formattedTime),
+                      ),
+                    );
+                  }),
+                ],
               );
-            },
+            }).toList(),
           );
         },
       ),

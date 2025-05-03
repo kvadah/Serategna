@@ -120,16 +120,12 @@ class FirestoreUser {
     var userId = Firebaseauth.getCurrentUser()?.uid; // Get the current user ID
 
     return FirebaseFirestore.instance
-        .collection('users') 
+        .collection('users')
         .doc(userId)
-        .collection(
-            'myApplications') 
-        .orderBy('appliedAt',
-            descending: true) 
-        .snapshots(); 
+        .collection('myApplications')
+        .orderBy('appliedAt', descending: true)
+        .snapshots();
   }
-
-
 
 //get a specif application detail for further look
   static Future<Map<String, dynamic>?> fetchApplicationDetails(
@@ -156,23 +152,18 @@ class FirestoreUser {
     }
   }
 
-
 // to change user's application status as the company changes
   static Future<void> updateStatusInUserAndApplications(
-      String userId, 
-      String
-          applicationId, 
-      String newStatus) async {
+      String userId, String applicationId, String newStatus) async {
     try {
       // Update the status in the 'my applications' sub-collection
       await FirebaseFirestore.instance
-          .collection('users') 
+          .collection('users')
           .doc(userId)
-          .collection(
-              'myApplications') 
+          .collection('myApplications')
           .doc(applicationId)
           .update({
-        'status': newStatus, 
+        'status': newStatus,
       });
 
       log('message sent successfully!');
@@ -181,21 +172,14 @@ class FirestoreUser {
     }
   }
 
-
-
   // when a company sends a message to a user to a specific application
   static Future<void> sendMessageToUser(
-      String userId,
-      String
-          applicationId, 
-      String message) async {
+      String userId, String applicationId, String message) async {
     try {
-      
       await FirebaseFirestore.instance
-          .collection('users') 
+          .collection('users')
           .doc(userId)
-          .collection(
-              'myApplications') 
+          .collection('myApplications')
           .doc(applicationId)
           .set({'message': message}, SetOptions(merge: true));
 
@@ -205,19 +189,14 @@ class FirestoreUser {
     }
   }
 
-
-
-
   static Future<String?> getStatusFromUserAndApplication(
-      String userId, 
-      String applicationId) async {
+      String userId, String applicationId) async {
     try {
       // Fetch the status from the 'my applications' sub-collection
       DocumentSnapshot snapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
-          .collection(
-              'myApplications')
+          .collection('myApplications')
           .doc(applicationId)
           .get();
 
@@ -234,9 +213,7 @@ class FirestoreUser {
     }
   }
 
-
-
-   static Stream<QuerySnapshot> getUserNotificationsStream(String userId) {
+  static Stream<QuerySnapshot> getUserNotificationsStream(String userId) {
     return FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -254,5 +231,47 @@ class FirestoreUser {
         .get();
 
     return query.docs.length;
+  }
+
+
+
+ static  Future<void> markNotificationsAsRead() async {
+   
+    final userId = Firebaseauth.getCurrentUser()?.uid;
+    if (userId == null) return;
+
+    try {
+       await Future.delayed(const Duration(seconds: 1));
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .where('status', isEqualTo: 'new')
+          .get();
+
+      for (final doc in snapshot.docs) {
+        doc.reference.update({'status': 'read'});
+      }
+    } catch (e) {
+      log('Error marking notifications as read: $e');
+    }
+  }
+
+  static int listenToNewNotifications(dynamic snapshot) {
+    final userId = Firebaseauth.getCurrentUser()?.uid;
+    //QuerySnapshot<Map<String, dynamic>> snapshot;
+    if (userId != null) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .where('status', isEqualTo: 'new')
+          .snapshots()
+          .listen((snapshot) {
+       
+        
+      });
+    }
+    return   snapshot.docs.length;
   }
 }

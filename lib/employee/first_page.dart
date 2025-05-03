@@ -5,6 +5,7 @@ import 'package:serategna/employee/home_page.dart';
 import 'package:serategna/employee/notifications_page.dart';
 import 'package:serategna/employee/profile_page.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
+import 'package:serategna/firebase/firestore_user.dart';
 
 class EmployeeFirstPage extends StatefulWidget {
   const EmployeeFirstPage({super.key});
@@ -29,29 +30,11 @@ class _EmployeeFirstPageState extends State<EmployeeFirstPage> {
     });
 
     if (index == 2) {
-      await _markNotificationsAsRead();
+      await FirestoreUser.markNotificationsAsRead();
     }
   }
 
-  Future<void> _markNotificationsAsRead() async {
-    final userId = Firebaseauth.getCurrentUser()?.uid;
-    if (userId == null) return;
-
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('notifications')
-          .where('status', isEqualTo: 'new')
-          .get();
-
-      for (final doc in snapshot.docs) {
-        doc.reference.update({'status': 'read'});
-      }
-    } catch (e) {
-      debugPrint('Error marking notifications as read: $e');
-    }
-  }
+  
 
   int _newNotificationCount = 0;
   @override
