@@ -44,7 +44,7 @@ class FirestoreJobs {
           .collection('companies')
           .doc(user.uid)
           .collection('jobsPost')
-          .doc(jobRef.id) // Use the jobRef.id to ensure the same job is added
+          .doc(jobRef.id) 
           .set({
         'companyName': companyName,
         'title': title,
@@ -139,10 +139,10 @@ class FirestoreJobs {
   static Stream<QuerySnapshot> getCompaniesPostStream(String userId) {
     // Access the user's document in the 'users' collection and fetch their 'myApplications' subcollection
     return FirebaseFirestore.instance
-        .collection('companies') // Reference to the 'users' collection
-        .doc(userId) // Document for the current user
-        .collection('jobsPost') // Subcollection with the user's applications
-        .snapshots(); // Stream of documents in that subcollection
+        .collection('companies') 
+        .doc(userId) 
+        .collection('jobsPost')
+        .snapshots(); 
   }
 
   static Stream<QuerySnapshot> getJobApplicantsStream(String jobId) {

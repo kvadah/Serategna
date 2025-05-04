@@ -22,9 +22,16 @@ class _ProfileState extends State<Profile> {
   String bio = "No Bio Available";
   String profileImageUrl = "";
   List<dynamic> skills = [];
+  bool _isloggingOut = false;
 
   void _signout() async {
+    setState(() {
+      _isloggingOut = true;
+    });
+    await Future.delayed(const Duration(seconds: 1));
     await Firebaseauth.signOut();
+    if (!mounted) return;
+
     Navigator.pushAndRemoveUntil(context,
         MaterialPageRoute(builder: (context) => SignIn()), (route) => false);
   }
@@ -98,14 +105,23 @@ class _ProfileState extends State<Profile> {
                     onPressed: () {
                       _signout();
                     },
-                    child: const Text(
-                      'Log out',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
-                    ))
+                    child: _isloggingOut
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.black,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Log out',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ))
               ],
             ),
           );
