@@ -23,6 +23,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
   String? _cvFilePath;
   final TextEditingController _descriptionController = TextEditingController();
   bool _isJobExpired = false;
+  bool _isAppliying = false;
 
   final InternetConnectionChecker internetChecker =
       InternetConnectionChecker.createInstance();
@@ -94,9 +95,15 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
   }
 
   void _submitApplication() async {
+    setState(() {
+      _isAppliying = true;
+    });
     bool isInternateActive = await _checkInternetConnection();
     if (!isInternateActive) {
       _showNoInternetDialog();
+      setState(() {
+        _isAppliying = false;
+      });
       return;
     }
     if (_descriptionController.text.trim().isEmpty) {
@@ -107,6 +114,9 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
         backgroundColor: Colors.orange,
         textColor: Colors.white,
       );
+      setState(() {
+        _isAppliying = false;
+      });
       return;
     }
     User? user = Firebaseauth.getCurrentUser();
@@ -129,7 +139,11 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
         backgroundColor: Colors.green,
         textColor: Colors.white,
       );
+      _descriptionController.clear();
     }
+    setState(() {
+      _isAppliying = false;
+    });
   }
 
   @override
@@ -210,7 +224,15 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                   onPressed: () {
                     _isJobExpired ? null : _submitApplication();
                   },
-                  icon: const Icon(Icons.send),
+                  icon: _isAppliying
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.black,
+                          ))
+                      : const Icon(Icons.send),
                   label: const Text('Apply Now'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isJobExpired ? Colors.grey : null,

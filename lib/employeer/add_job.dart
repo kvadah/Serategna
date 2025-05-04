@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firebasefirestore.dart';
 
@@ -19,6 +20,7 @@ class _AddJobPageState extends State<AddJobPage> {
   DateTime? _selectedDeadline;
   final List<String> jobTypes = ['Full-time', 'Part-time', 'Internship'];
   String? selectedJobType;
+  bool _isPosting = false;
 
   @override
   void initState() {
@@ -40,6 +42,39 @@ class _AddJobPageState extends State<AddJobPage> {
             "${picked.toLocal()}".split(' ')[0]; // Formatting the date
       });
     }
+  }
+
+  void postAjob() async {
+    setState(() {
+      _isPosting = true;
+    });
+    User? user = Firebaseauth.getCurrentUser();
+    await FirestoreJobs.addJobToCompanyAndJobsCollection(
+      user,
+      _titleController.text,
+      selectedJobType!,
+      _locationController.text,
+      _descriptionController.text,
+      _selectedDeadline, // Add the deadline date
+    );
+    _titleController.clear();
+    _locationController.clear();
+    _descriptionController.clear();
+    _deadlineController.clear();
+    setState(() {
+      selectedJobType = null;
+    });
+
+    Fluttertoast.showToast(
+      msg: "job posted successfully.",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+    );
+    setState(() {
+      _isPosting = false;
+    });
   }
 
   @override
@@ -104,24 +139,28 @@ class _AddJobPageState extends State<AddJobPage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  if (_selectedDeadline == null) {
-                    // Show an error if deadline is not selected
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Please select a deadline')));
-                    return;
-                  }
-                  User? user = Firebaseauth.getCurrentUser();
-                  FirestoreJobs.addJobToCompanyAndJobsCollection(
-                    user,
-                    _titleController.text,
-                    selectedJobType!,
-                    _locationController.text,
-                    _descriptionController.text,
-                    _selectedDeadline, // Add the deadline date
-                  );
-                },
-                child: const Text('Post Job'),
+                onPressed: _isPosting
+                    ? null
+                    : () async {
+                        if (_selectedDeadline == null) {
+                          // Show an error if deadline is not selected
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Please select a deadline')));
+                          return;
+                        }
+                        postAjob();
+                      },
+                child: _isPosting
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.black,
+                          strokeWidth: 3,
+                        ),
+                      )
+                    : const Text('Post Job'),
               ),
             ],
           ),
