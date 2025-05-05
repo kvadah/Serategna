@@ -51,6 +51,7 @@ class ApplicantsListPage extends StatelessWidget {
                                 applicantId: applicantId,
                                 jobId: jobId,
                               )));
+
                   log(applicantId);
                   log(jobId);
                 },

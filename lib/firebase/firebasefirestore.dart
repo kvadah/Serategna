@@ -108,6 +108,7 @@ class FirestoreJobs {
         'email': email,
         'phone': phone,
         'about': about,
+        'status': 'new',
         'appliedAt': FieldValue.serverTimestamp(),
       });
 
@@ -137,13 +138,20 @@ class FirestoreJobs {
     return false;
   }
 
-  static Stream<QuerySnapshot> getCompaniesPostStream(String userId) {
-    // Access the user's document in the 'users' collection and fetch their 'myApplications' subcollection
-    return FirebaseFirestore.instance
+  static Future<List<Map<String, dynamic>>> getCompaniesPosts(
+      String companyId) async {
+    final snapshot = await FirebaseFirestore.instance
         .collection('companies')
-        .doc(userId)
+        .doc(companyId)
         .collection('jobsPost')
-        .snapshots();
+        .get();
+
+    // Add jobId to each document data
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['jobid'] = doc.id;
+      return data;
+    }).toList();
   }
 
   static Stream<QuerySnapshot> getJobApplicantsStream(String jobId) {
@@ -196,9 +204,51 @@ class FirestoreJobs {
         totalNewApplicants += applicantsSnapshot.docs.length;
       }
     } catch (e) {
-      print('Error fetching new applicant count: $e');
+      log('Error fetching new applicant count: $e');
     }
 
     return totalNewApplicants;
   }
+
+  static Future<int> getNewApplicantsForAspecificJob(String jobId) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    int newApplicants = 0;
+    try {
+      final applicantsSnapshot = await firestore
+          .collection('jobs')
+          .doc(jobId)
+          .collection('applicants')
+          .where('status', isEqualTo: 'new')
+          .get();
+
+      newApplicants += applicantsSnapshot.docs.length;
+    } catch (e) {
+      log('error: $e');
+    }
+    return newApplicants;
+  }
+
+  static Future<void> changeApplicantStatusAsRead(String jobId) async {
+  try {
+    final batch = FirebaseFirestore.instance.batch();
+
+    final snapshot = await FirebaseFirestore.instance
+        .collection('jobs')
+        .doc(jobId)
+        .collection('applicants')
+        .where('status', isEqualTo: 'new')
+        .get();
+
+    for (final doc in snapshot.docs) {
+      batch.update(doc.reference, {'status': 'read'});
+    }
+
+    // Commit all updates in a single batch
+    await batch.commit();
+    log('Marked ${snapshot.docs.length} applicants as read.');
+  } catch (e) {
+    log('Error marking applicants as read: $e');
+  }
+}
+
 }

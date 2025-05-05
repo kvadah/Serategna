@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:serategna/employee/home_page.dart';
 import 'package:serategna/employeer/add_job.dart';
@@ -36,7 +34,7 @@ class _FirstEmployerPageState extends State<FirstEmployerPage> {
   void initState() {
     super.initState();
     getNewApplicantsNumber();
-    log(_newApplicants.toString());
+    
   }
 
   void _onItemTapped(int index) {
