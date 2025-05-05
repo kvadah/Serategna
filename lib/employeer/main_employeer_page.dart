@@ -7,7 +7,6 @@ import 'package:serategna/employeer/add_job.dart';
 import 'package:serategna/employeer/aplicants_page.dart';
 import 'package:serategna/employeer/profile_page.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
-import 'package:serategna/firebase/firebasefirestore.dart';
 
 class FirstEmployerPage extends StatefulWidget {
   const FirstEmployerPage({super.key});
@@ -87,11 +86,11 @@ class _FirstEmployerPageState extends State<FirstEmployerPage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.blue, // Highlighted item color
-        unselectedItemColor: Colors.grey, // Make unselected items visible
+        selectedItemColor: Colors.blue, 
+        unselectedItemColor: Colors.grey, 
         backgroundColor:
-            Colors.white, // Ensure background isn't blending with text
-        type: BottomNavigationBarType.fixed, // Ensures all items are visible
+            Colors.white,
+        type: BottomNavigationBarType.fixed, 
         items: [
           const BottomNavigationBarItem(
             icon: Icon(Icons.home),

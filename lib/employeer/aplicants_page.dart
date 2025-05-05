@@ -65,7 +65,6 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                         builder: (context, snapshot) {
                           int newApplicants = snapshot.data ?? 0;
 
-                          child:
                           return Stack(children: [
                             Card(
                               shape: RoundedRectangleBorder(
@@ -111,7 +110,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                                 ),
                               ),
                             ),
-                            if ((newApplicants ?? 0) > 0)
+                            if ((newApplicants) > 0)
                               Positioned(
                                 right: 12,
                                 top: 8,

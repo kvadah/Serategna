@@ -1,13 +1,12 @@
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:serategna/firebase/firebaseauth.dart';
 
 class FirestoreJobs {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   static Stream<QuerySnapshot> getJobStream() {
-    return FirebaseFirestore.instance.collection('jobs').snapshots();
+    return _firestore.collection('jobs').snapshots();
   }
 
   static Future<void> addJobToCompanyAndJobsCollection(
@@ -64,11 +63,9 @@ class FirestoreJobs {
 
   static Future<bool> applyForJob(
       String userId, String jobId, String about) async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-
     try {
       // Reference to the applicant's document inside the job's applicants subcollection
-      DocumentReference applicantRef = firestore
+      DocumentReference applicantRef = _firestore
           .collection('jobs')
           .doc(jobId)
           .collection('applicants')
@@ -83,7 +80,7 @@ class FirestoreJobs {
 
       // Fetch user details
       DocumentSnapshot userDoc =
-          await firestore.collection('users').doc(userId).get();
+          await _firestore.collection('users').doc(userId).get();
       if (!userDoc.exists) throw Exception("User not found");
 
       String name = userDoc.get('fullName');
@@ -92,7 +89,7 @@ class FirestoreJobs {
 
       // Fetch job details
       DocumentSnapshot jobDoc =
-          await firestore.collection('jobs').doc(jobId).get();
+          await _firestore.collection('jobs').doc(jobId).get();
       if (!jobDoc.exists) throw Exception("Job not found");
 
       String company = jobDoc.get('companyName');
@@ -100,7 +97,7 @@ class FirestoreJobs {
       String description = jobDoc.get('description');
 
       // Firestore batch write to ensure atomic operation
-      WriteBatch batch = firestore.batch();
+      WriteBatch batch = _firestore.batch();
 
       // Add applicant to job's applicants subcollection
       batch.set(applicantRef, {
@@ -113,7 +110,7 @@ class FirestoreJobs {
       });
 
       // Add job to user's myApplications subcollection
-      DocumentReference applicationRef = firestore
+      DocumentReference applicationRef = _firestore
           .collection('users')
           .doc(userId)
           .collection('myApplications')
@@ -140,7 +137,7 @@ class FirestoreJobs {
 
   static Future<List<Map<String, dynamic>>> getCompaniesPosts(
       String companyId) async {
-    final snapshot = await FirebaseFirestore.instance
+    final snapshot = await _firestore
         .collection('companies')
         .doc(companyId)
         .collection('jobsPost')
@@ -155,7 +152,7 @@ class FirestoreJobs {
   }
 
   static Stream<QuerySnapshot> getJobApplicantsStream(String jobId) {
-    return FirebaseFirestore.instance
+    return _firestore
         .collection("jobs")
         .doc(jobId)
         .collection("applicants")
@@ -164,10 +161,8 @@ class FirestoreJobs {
 
   static Future<Map<String, dynamic>?> getCompanyData(String? uid) async {
     try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection("companies")
-          .doc(uid)
-          .get();
+      DocumentSnapshot doc =
+          await _firestore.collection("companies").doc(uid).get();
       if (doc.exists) {
         return doc.data() as Map<String, dynamic>?;
       }
@@ -179,9 +174,9 @@ class FirestoreJobs {
 
   static Future<void> changeApplicantStatusAsRead(String jobId) async {
     try {
-      final batch = FirebaseFirestore.instance.batch();
+      final batch = _firestore.batch();
 
-      final snapshot = await FirebaseFirestore.instance
+      final snapshot = await _firestore
           .collection('jobs')
           .doc(jobId)
           .collection('applicants')
@@ -201,13 +196,12 @@ class FirestoreJobs {
   }
 
   static Stream<int> listenToNewApplicantsForJob(String jobId) {
-  return FirebaseFirestore.instance
-      .collection('jobs')
-      .doc(jobId)
-      .collection('applicants')
-      .where('status', isEqualTo: 'new')
-      .snapshots()
-      .map((snapshot) => snapshot.docs.length);
-}
-
+    return _firestore
+        .collection('jobs')
+        .doc(jobId)
+        .collection('applicants')
+        .where('status', isEqualTo: 'new')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
+  }
 }
