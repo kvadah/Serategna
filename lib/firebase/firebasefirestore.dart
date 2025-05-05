@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:serategna/firebase/firebaseauth.dart';
 
 class FirestoreJobs {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -44,7 +45,7 @@ class FirestoreJobs {
           .collection('companies')
           .doc(user.uid)
           .collection('jobsPost')
-          .doc(jobRef.id) 
+          .doc(jobRef.id)
           .set({
         'companyName': companyName,
         'title': title,
@@ -139,10 +140,10 @@ class FirestoreJobs {
   static Stream<QuerySnapshot> getCompaniesPostStream(String userId) {
     // Access the user's document in the 'users' collection and fetch their 'myApplications' subcollection
     return FirebaseFirestore.instance
-        .collection('companies') 
-        .doc(userId) 
+        .collection('companies')
+        .doc(userId)
         .collection('jobsPost')
-        .snapshots(); 
+        .snapshots();
   }
 
   static Stream<QuerySnapshot> getJobApplicantsStream(String jobId) {
@@ -152,20 +153,52 @@ class FirestoreJobs {
         .collection("applicants")
         .snapshots();
   }
-  static Future<Map<String,dynamic>?> getCompanyData(String? uid) async{
- try {
+
+  static Future<Map<String, dynamic>?> getCompanyData(String? uid) async {
+    try {
       DocumentSnapshot doc = await FirebaseFirestore.instance
           .collection("companies")
           .doc(uid)
           .get();
       if (doc.exists) {
-       
-          return doc.data() as Map<String, dynamic>?;
-        
+        return doc.data() as Map<String, dynamic>?;
       }
     } catch (error) {
       log("Error fetching company data: $error");
     }
- return null;
+    return null;
+  }
+
+  static Future<int> getNewApplicantsCountForCompany() async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    String companyId = Firebaseauth.getCurrentUser()!.uid;
+    int totalNewApplicants = 0;
+
+    try {
+      // Step 1: Get job post IDs under companies/{companyId}/jobspost
+      final jobPostsSnapshot = await firestore
+          .collection('companies')
+          .doc(companyId)
+          .collection('jobsPost')
+          .get();
+
+      List<String> jobIds = jobPostsSnapshot.docs.map((doc) => doc.id).toList();
+
+      // Step 2: Loop through each job ID and count applicants with status 'new'
+      for (String jobId in jobIds) {
+        final applicantsSnapshot = await firestore
+            .collection('jobs')
+            .doc(jobId)
+            .collection('applicants')
+            .where('status', isEqualTo: 'new')
+            .get();
+
+        totalNewApplicants += applicantsSnapshot.docs.length;
+      }
+    } catch (e) {
+      print('Error fetching new applicant count: $e');
+    }
+
+    return totalNewApplicants;
   }
 }
