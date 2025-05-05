@@ -15,24 +15,16 @@ class ApplicantsPage extends StatefulWidget {
 
 class _ApplicantsPageState extends State<ApplicantsPage> {
   // Fetch the user's applications from Firestore
-  List<Map<String, dynamic>> applications = [];
+  List<Map<String, dynamic>> rawJobs = [];
   bool isloading = true;
 
   Future<void> loadApplications() async {
     String userId = Firebaseauth.getCurrentUser()!.uid;
-    final rawJobs =
-        await FirestoreJobs.getCompaniesPosts(userId); // Your own function
-    final List<Map<String, dynamic>> loadedJobs = [];
-
-    for (var job in rawJobs) {
-      int newCount =
-          await FirestoreJobs.getNewApplicantsForAspecificJob(job['jobid']);
-      job['newApplicantsCount'] = newCount;
-      loadedJobs.add(job);
-    }
+    final jobs = await FirestoreJobs.getCompaniesPosts(userId);
+    log(jobs.toString()); // Your own function
 
     setState(() {
-      applications = loadedJobs;
+      rawJobs = jobs;
       isloading = false;
     });
   }
@@ -52,12 +44,12 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
       ),
       body: isloading
           ? const Center(child: CircularProgressIndicator())
-          : applications.isEmpty
+          : rawJobs.isEmpty
               ? const Center(child: Text('No applications found.'))
               : ListView.builder(
-                  itemCount: applications.length,
+                  itemCount: rawJobs.length,
                   itemBuilder: (context, index) {
-                    var jobData = applications[index];
+                    var jobData = rawJobs[index];
 
                     // Format the appliedAt date
                     String appliedAtDate = 'Unknown';
@@ -67,66 +59,79 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                       appliedAtDate = DateFormat('dd/MM/yyyy').format(dateTime);
                     }
 
-                    return Stack(children: [
-                      Card(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              right: 20.0, bottom: 10, left: 8, top: 8),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ApplicantsListPage(
-                                      jobId: jobData['jobid']),
+                    return StreamBuilder(
+                        stream: FirestoreJobs.listenToNewApplicantsForJob(
+                            jobData['jobid']),
+                        builder: (context, snapshot) {
+                          int newApplicants = snapshot.data ?? 0;
+
+                          child:
+                          return Stack(children: [
+                            Card(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                    right: 20.0, bottom: 10, left: 8, top: 8),
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ApplicantsListPage(
+                                                jobId: jobData['jobid']),
+                                      ),
+                                    ).then((_) {
+                                      FirestoreJobs.changeApplicantStatusAsRead(
+                                          jobData['jobid']);
+                                    });
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          'Title: ${jobData['title'] ?? 'Unknown'}',
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold)),
+                                      Text(
+                                          jobData['description'] ??
+                                              'No description',
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis),
+                                      const SizedBox(height: 10),
+                                      Text('Posted at: $appliedAtDate',
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontStyle: FontStyle.italic)),
+                                    ],
+                                  ),
                                 ),
-                              ).then((_) {
-                                FirestoreJobs.changeApplicantStatusAsRead(
-                                    jobData['jobid']);
-                              });
-                            },
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Title: ${jobData['title'] ?? 'Unknown'}',
+                              ),
+                            ),
+                            if ((newApplicants ?? 0) > 0)
+                              Positioned(
+                                right: 12,
+                                top: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    '$newApplicants',
                                     style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold)),
-                                Text(jobData['description'] ?? 'No description',
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis),
-                                const SizedBox(height: 10),
-                                Text('Posted at: $appliedAtDate',
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontStyle: FontStyle.italic)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      if ((jobData['newApplicantsCount'] ?? 0) > 0)
-                        Positioned(
-                          right: 12,
-                          top: 8,
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              '${jobData['newApplicantsCount']}',
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                    ]);
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                          ]);
+                        });
                   },
                 ),
     );

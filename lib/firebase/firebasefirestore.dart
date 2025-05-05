@@ -177,78 +177,37 @@ class FirestoreJobs {
     return null;
   }
 
-  static Future<int> getNewApplicantsCountForCompany() async {
-    final FirebaseFirestore firestore = FirebaseFirestore.instance;
-    String companyId = Firebaseauth.getCurrentUser()!.uid;
-    int totalNewApplicants = 0;
-
+  static Future<void> changeApplicantStatusAsRead(String jobId) async {
     try {
-      // Step 1: Get job post IDs under companies/{companyId}/jobspost
-      final jobPostsSnapshot = await firestore
-          .collection('companies')
-          .doc(companyId)
-          .collection('jobsPost')
-          .get();
+      final batch = FirebaseFirestore.instance.batch();
 
-      List<String> jobIds = jobPostsSnapshot.docs.map((doc) => doc.id).toList();
-
-      // Step 2: Loop through each job ID and count applicants with status 'new'
-      for (String jobId in jobIds) {
-        final applicantsSnapshot = await firestore
-            .collection('jobs')
-            .doc(jobId)
-            .collection('applicants')
-            .where('status', isEqualTo: 'new')
-            .get();
-
-        totalNewApplicants += applicantsSnapshot.docs.length;
-      }
-    } catch (e) {
-      log('Error fetching new applicant count: $e');
-    }
-
-    return totalNewApplicants;
-  }
-
-  static Future<int> getNewApplicantsForAspecificJob(String jobId) async {
-    final FirebaseFirestore firestore = FirebaseFirestore.instance;
-    int newApplicants = 0;
-    try {
-      final applicantsSnapshot = await firestore
+      final snapshot = await FirebaseFirestore.instance
           .collection('jobs')
           .doc(jobId)
           .collection('applicants')
           .where('status', isEqualTo: 'new')
           .get();
 
-      newApplicants += applicantsSnapshot.docs.length;
+      for (final doc in snapshot.docs) {
+        batch.update(doc.reference, {'status': 'read'});
+      }
+
+      // Commit all updates in a single batch
+      await batch.commit();
+      log('Marked ${snapshot.docs.length} applicants as read.');
     } catch (e) {
-      log('error: $e');
+      log('Error marking applicants as read: $e');
     }
-    return newApplicants;
   }
 
-  static Future<void> changeApplicantStatusAsRead(String jobId) async {
-  try {
-    final batch = FirebaseFirestore.instance.batch();
-
-    final snapshot = await FirebaseFirestore.instance
-        .collection('jobs')
-        .doc(jobId)
-        .collection('applicants')
-        .where('status', isEqualTo: 'new')
-        .get();
-
-    for (final doc in snapshot.docs) {
-      batch.update(doc.reference, {'status': 'read'});
-    }
-
-    // Commit all updates in a single batch
-    await batch.commit();
-    log('Marked ${snapshot.docs.length} applicants as read.');
-  } catch (e) {
-    log('Error marking applicants as read: $e');
-  }
+  static Stream<int> listenToNewApplicantsForJob(String jobId) {
+  return FirebaseFirestore.instance
+      .collection('jobs')
+      .doc(jobId)
+      .collection('applicants')
+      .where('status', isEqualTo: 'new')
+      .snapshots()
+      .map((snapshot) => snapshot.docs.length);
 }
 
 }

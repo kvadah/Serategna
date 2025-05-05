@@ -1,8 +1,12 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:serategna/employee/home_page.dart';
 import 'package:serategna/employeer/add_job.dart';
 import 'package:serategna/employeer/aplicants_page.dart';
 import 'package:serategna/employeer/profile_page.dart';
+import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firebasefirestore.dart';
 
 class FirstEmployerPage extends StatefulWidget {
@@ -15,6 +19,7 @@ class FirstEmployerPage extends StatefulWidget {
 class _FirstEmployerPageState extends State<FirstEmployerPage> {
   int _selectedIndex = 0;
   int _newApplicants = 0;
+  final List<StreamSubscription> _subscriptions = [];
 
   final List<Widget> _screens = [
     const HomePage(),
@@ -22,19 +27,48 @@ class _FirstEmployerPageState extends State<FirstEmployerPage> {
     const AddJobPage(),
     const ProfilePage(),
   ];
-  void getNewApplicantsNumber() async {
-    int count = await FirestoreJobs.getNewApplicantsCountForCompany();
-    
-    setState(()  {
-      _newApplicants = count;
+ 
+
+  void listenToNewApplicantsNumber() async {
+    String companyId = Firebaseauth.getCurrentUser()!.uid;
+
+    final Map<String, int> jobApplicantCounts = {};
+
+    final jobsSub = FirebaseFirestore.instance
+        .collection('companies')
+        .doc(companyId)
+        .collection('jobsPost')
+        .snapshots()
+        .listen((jobPostsSnapshot) {
+      for (var jobDoc in jobPostsSnapshot.docs) {
+        String jobId = jobDoc.id;
+
+        final applicantSub = FirebaseFirestore.instance
+            .collection('jobs')
+            .doc(jobId)
+            .collection('applicants')
+            .where('status', isEqualTo: 'new')
+            .snapshots()
+            .listen((applicantsSnapshot) {
+          jobApplicantCounts[jobId] = applicantsSnapshot.docs.length;
+
+          setState(() {
+            _newApplicants =
+                jobApplicantCounts.values.fold(0, (sum, val) => sum + val);
+          });
+        });
+
+        _subscriptions.add(applicantSub);
+      }
     });
+
+    _subscriptions.add(jobsSub);
   }
 
   @override
   void initState() {
     super.initState();
-    getNewApplicantsNumber();
-    
+    listenToNewApplicantsNumber();
   }
 
   void _onItemTapped(int index) {
