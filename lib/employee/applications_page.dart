@@ -21,6 +21,19 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
         .getUserApplicationsStream(); // Set the stream for user applications
   }
 
+  Color chooseStatusColor(String status) {
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return const Color.fromARGB(255, 223, 203, 26);
+      case 'INTERVIEW SCHEDULED':
+        return Colors.blueAccent;
+      case 'REJECTED':
+        return Colors.red;
+      default:
+        return Colors.green;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,7 +137,8 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.blueAccent,
+                              color:
+                                  chooseStatusColor(applicationData['status']),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
