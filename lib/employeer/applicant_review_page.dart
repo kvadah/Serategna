@@ -44,7 +44,7 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
   void fetchTitleandCompany() async {
     final result = await FirestoreUser.getTitleAndCompany(
         widget.applicantId, widget.jobId);
-    
+
     if (result != null) {
       title = result['title']!;
       companyName = result['company']!;

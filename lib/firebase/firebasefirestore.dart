@@ -119,7 +119,7 @@ class FirestoreJobs {
       batch.set(applicationRef, {
         'company': company,
         'title': title,
-        'status': 'pending',
+        'status': 'Pending',
         'description': description,
         'appliedAt': FieldValue.serverTimestamp(),
       });
