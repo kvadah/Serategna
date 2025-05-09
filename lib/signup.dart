@@ -61,147 +61,143 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: SizedBox(
-          height:
-              MediaQuery.of(context).size.height, // Make Card take full height
-          child: Card(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero, // No rounded corners
-            ),
-            margin: EdgeInsets.zero, // No extra margin
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment:
-                      MainAxisAlignment.start, // Start from the top
-                  children: [
-                    const SizedBox(
-                      height: 110,
+        child: Card(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero, // No rounded corners
+          ),
+          margin: EdgeInsets.zero, // No extra margin
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment:
+                    MainAxisAlignment.start, // Start from the top
+                children: [
+                  const SizedBox(
+                    height: 110,
+                  ),
+                  const Text(
+                    "Create Account",
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                    const Text(
-                      "Create Account",
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildTextField(
+                      _fullNameController,
+                      _userType == 'Employer' ? 'Company Name' : 'Full Name',
+                      Icons.person),
+                  _buildTextField(
+                      _phoneController,
+                      _userType == 'Employer'
+                          ? 'Company Phone Number'
+                          : 'Phone Number',
+                      Icons.phone,
+                      keyboardType: TextInputType.phone),
+                  _buildTextField(
+                      _emailController,
+                      _userType == 'Employer' ? 'Company Email' : 'Email',
+                      Icons.email,
+                      keyboardType: TextInputType.emailAddress),
+                  _buildTextField(_passwordController, 'Password', Icons.lock,
+                      obscureText: true),
+                  const SizedBox(height: 16),
+
+                  // User Type Selection
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Sign up as: ",
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildTextField(
-                        _fullNameController,
-                        _userType == 'Employer' ? 'Company Name' : 'Full Name',
-                        Icons.person),
-                    _buildTextField(
-                        _phoneController,
-                        _userType == 'Employer'
-                            ? 'Company Phone Number'
-                            : 'Phone Number',
-                        Icons.phone,
-                        keyboardType: TextInputType.phone),
-                    _buildTextField(
-                        _emailController,
-                        _userType == 'Employer' ? 'Company Email' : 'Email',
-                        Icons.email,
-                        keyboardType: TextInputType.emailAddress),
-                    _buildTextField(_passwordController, 'Password', Icons.lock,
-                        obscureText: true),
-                    const SizedBox(height: 16),
-
-                    // User Type Selection
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Sign up as: ",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Radio<String>(
-                          value: 'Employee',
-                          groupValue: _userType,
-                          onChanged: (String? value) {
-                            setState(() => _userType = value!);
-                          },
-                        ),
-                        const Text("Employee"),
-                        Radio<String>(
-                          value: 'Employer',
-                          groupValue: _userType,
-                          onChanged: (String? value) {
-                            setState(() => _userType = value!);
-                          },
-                        ),
-                        const Text("Employer"),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Sign Up Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _signUp,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          backgroundColor: Colors.black, // Elegant black
-                        ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            : const Text("Sign Up",
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.white)),
+                      Radio<String>(
+                        value: 'Employee',
+                        groupValue: _userType,
+                        onChanged: (String? value) {
+                          setState(() => _userType = value!);
+                        },
                       ),
-                    ),
-                    const SizedBox(height: 8),
+                      const Text("Employee"),
+                      Radio<String>(
+                        value: 'Employer',
+                        groupValue: _userType,
+                        onChanged: (String? value) {
+                          setState(() => _userType = value!);
+                        },
+                      ),
+                      const Text("Employer"),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
 
-                    // Sign In Redirect
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (context) => SignIn()));
-                      },
-                      child: const Text("Already have an account? Sign In"),
+                  // Sign Up Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _signUp,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        backgroundColor: Colors.black, // Elegant black
+                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                          : const Text("Sign Up",
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.white)),
                     ),
-                    const SizedBox(height: 30),
+                  ),
+                  const SizedBox(height: 8),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          icon: const FaIcon(
-                            FontAwesomeIcons.github,
-                            color: Colors.black,
-                            size: 40,
-                          ),
-                          onPressed: () {},
+                  // Sign In Redirect
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => SignIn()));
+                    },
+                    child: const Text("Already have an account? Sign In"),
+                  ),
+                  const SizedBox(height: 30),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const FaIcon(
+                          FontAwesomeIcons.github,
+                          color: Colors.black,
+                          size: 40,
                         ),
-                        const SizedBox(width: 10),
-                        IconButton(
-                          icon: const FaIcon(
-                            FontAwesomeIcons.linkedin,
-                            color: Colors.blue,
-                            size: 40,
-                          ),
-                          onPressed: () {},
+                        onPressed: () {},
+                      ),
+                      const SizedBox(width: 10),
+                      IconButton(
+                        icon: const FaIcon(
+                          FontAwesomeIcons.linkedin,
+                          color: Colors.blue,
+                          size: 40,
                         ),
-                        const SizedBox(width: 10),
-                        IconButton(
-                          icon: const FaIcon(
-                            FontAwesomeIcons.instagram,
-                            color: Color.fromARGB(195, 245, 34, 45),
-                            size: 40,
-                          ),
-                          onPressed: () {},
+                        onPressed: () {},
+                      ),
+                      const SizedBox(width: 10),
+                      IconButton(
+                        icon: const FaIcon(
+                          FontAwesomeIcons.instagram,
+                          color: Color.fromARGB(195, 245, 34, 45),
+                          size: 40,
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
