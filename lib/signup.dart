@@ -90,11 +90,20 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     const SizedBox(height: 20),
                     _buildTextField(
-                        _fullNameController, 'Full Name', Icons.person),
+                        _fullNameController,
+                        _userType == 'Employer' ? 'Company Name' : 'Full Name',
+                        Icons.person),
                     _buildTextField(
-                        _phoneController, 'Phone Number', Icons.phone,
+                        _phoneController,
+                        _userType == 'Employer'
+                            ? 'Company Phone Number'
+                            : 'Phone Number',
+                        Icons.phone,
                         keyboardType: TextInputType.phone),
-                    _buildTextField(_emailController, 'Email', Icons.email,
+                    _buildTextField(
+                        _emailController,
+                        _userType == 'Employer' ? 'Company Email' : 'Email',
+                        Icons.email,
                         keyboardType: TextInputType.emailAddress),
                     _buildTextField(_passwordController, 'Password', Icons.lock,
                         obscureText: true),
@@ -104,7 +113,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Sign up as: "),
+                        const Text(
+                          "Sign up as: ",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         Radio<String>(
                           value: 'Employee',
                           groupValue: _userType,
