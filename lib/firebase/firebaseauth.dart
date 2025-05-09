@@ -1,9 +1,7 @@
-
-
 import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:serategna/firebase/auth_exception.dart';
 
 class Firebaseauth {
   // Instance of FirebaseAuth
@@ -27,8 +25,16 @@ class Firebaseauth {
       // User created successfully
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      throw FirebaseAuthException;
-      // Handle different FirebaseAuth exceptions
+      log(e.code);
+      if (e.code == 'email-already-in-use') {
+        throw EmailAlreadyInUseException();
+      } else if (e.code == 'weak-password') {
+        throw WeakPasswordException();
+      } else if (e.code == 'invalid-email') {
+        throw InvalidEmailException();
+      } else {
+        throw GenericAuthException();
+      }
     } catch (e) {
       // Catch other exceptions
       log('Error: $e');
@@ -48,7 +54,13 @@ class Firebaseauth {
       // Return the signed-in user
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      throw FirebaseAuthException;
+      if (e.code == 'invalid-credential') {
+        throw InvalidCredentialException();
+      } else if (e.code == 'invalid-email') {
+        throw InvalidEmailException();
+      } else {
+        throw GenericAuthException();
+      }
     } catch (e) {
       log('Error: $e');
       return null;
@@ -59,13 +71,12 @@ class Firebaseauth {
   static Future<void> signOut() async {
     await _auth.signOut();
   }
-   static Future<void> sendVerificationEmail() async {
+
+  static Future<void> sendVerificationEmail() async {
     try {
       await _auth.currentUser?.sendEmailVerification();
-     
-    // ignore: empty_catches
-    } catch (e) {
-     
-    }
+
+      // ignore: empty_catches
+    } catch (e) {}
   }
 }

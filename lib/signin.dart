@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:serategna/email_verify_page.dart';
 import 'package:serategna/employee/first_page.dart';
 import 'package:serategna/employeer/main_employeer_page.dart';
+import 'package:serategna/firebase/auth_exception.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/signup.dart';
@@ -19,30 +21,51 @@ class _SignInState extends State<SignIn> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  void _signIn() async { 
+  void showToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
+  void _signIn() async {
     //change the text to loading animation to simulate logging
     setState(() => _isLoading = true);
 
     if (_formKey.currentState!.validate()) {
       try {
-        User? user = await Firebaseauth.signInUser(
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
-        );
+        User? user;
+        try {
+          user = await Firebaseauth.signInUser(
+            _emailController.text.trim(),
+            _passwordController.text.trim(),
+          );
+        } on InvalidCredentialException {
+          showToast('wrong email or password');
+        } on InvalidEmailException {
+          showToast('invalid email');
+        } on GenericAuthException {
+          showToast('internal server error');
+        }
 
         if (user != null) {
           await user.reload(); // 🔴 Important: Refresh user data
           user = FirebaseAuth.instance.currentUser; // Get updated user data
 
           Map<String, dynamic>? data = await FirestoreUser.getUserData(user);
-            //check if user email is verified
+          //check if user email is verified
           if (user!.emailVerified) {
             //and if user is employee direct him/her to employee to employe system
             if (data?['userType'] == 'Employee') {
               Navigator.pushAndRemoveUntil(
                 // ignore: use_build_context_synchronously
                 context,
-                MaterialPageRoute(builder: (context) =>  const EmployeeFirstPage()),
+                MaterialPageRoute(
+                    builder: (context) => const EmployeeFirstPage()),
                 (Route<dynamic> route) => false,
               );
               //if employer
@@ -50,7 +73,8 @@ class _SignInState extends State<SignIn> {
               Navigator.pushAndRemoveUntil(
                 // ignore: use_build_context_synchronously
                 context,
-                MaterialPageRoute(builder: (context) => const FirstEmployerPage ()),
+                MaterialPageRoute(
+                    builder: (context) => const FirstEmployerPage()),
                 (Route<dynamic> route) => false,
               );
             }
@@ -65,14 +89,8 @@ class _SignInState extends State<SignIn> {
         } else {
           throw "Invalid credentials. Please try again.";
         }
-      } catch (e) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  "Error: ($e)")), 
-        );
-      }
+        // ignore: empty_catches
+      } catch (e) {}
       setState(() => _isLoading = false);
     } else {
       setState(() {
@@ -139,9 +157,7 @@ class _SignInState extends State<SignIn> {
 
                     // Forgot Password Link
                     TextButton(
-                      onPressed: () {
-                        
-                      },
+                      onPressed: () {},
                       child: const Text("Forgot Password?"),
                     ),
 

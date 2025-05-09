@@ -1,8 +1,10 @@
 import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:serategna/email_verify_page.dart';
+import 'package:serategna/firebase/auth_exception.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/signin.dart';
@@ -21,6 +23,17 @@ class _SignUpPageState extends State<SignUpPage> {
   String _userType = 'Employee';
   bool _isLoading = false;
 
+  void showToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
   void _signUp() async {
     setState(() {
       _isLoading = true;
@@ -30,6 +43,14 @@ class _SignUpPageState extends State<SignUpPage> {
       try {
         user = await Firebaseauth.createUser(
             _emailController.text.trim(), _passwordController.text.trim());
+      } on EmailAlreadyInUseException {
+        showToast('this email is already registered');
+      } on WeakPasswordException {
+        showToast('weak password try storng password');
+      } on InvalidEmailException {
+        showToast('invalid email');
+      } on GenericAuthException {
+        showToast('internal server error');
       } catch (e) {
         log(e.toString());
         setState(() {
@@ -47,9 +68,10 @@ class _SignUpPageState extends State<SignUpPage> {
       setState(() {
         _isLoading = false;
       });
-
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => VerifyEmailPage()));
+      if (user != null) {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => VerifyEmailPage()));
+      }
     } else {
       setState(() {
         _isLoading = false;
@@ -197,6 +219,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 90)
                 ],
               ),
             ),
