@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 
 class ApplicantReviewPage extends StatefulWidget {
@@ -24,7 +25,10 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
   String companyName = 'kk';
   String title = 'll';
   String message = '';
+  bool isSendingMessage = false;
+  bool isLoadingStatus = true;
   TextEditingController messageController = TextEditingController();
+
   final List<String> statusOptions = [
     'Pending',
     'Interview Scheduled',
@@ -32,13 +36,15 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
     'Hired',
   ];
 
-  bool isLoadingStatus = true;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchTitleandCompany();
-    _fetchStatus();
+  void showToast(String message, Color color) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: color,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
   }
 
   void fetchTitleandCompany() async {
@@ -90,6 +96,24 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
 
     return 'Your application for "$jobTitle" at $companyName $statusMessage. '
         'Please check your application for more details.';
+  }
+
+  void sendMessageToUser(
+      String applicantId, String jobId, String message) async {
+    try {
+      await FirestoreUser.sendMessageToUser(applicantId, jobId, message);
+      showToast('message sent successfully', Colors.green);
+      messageController.clear();
+    } catch (e) {
+      showToast('could not send the message', Colors.red);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTitleandCompany();
+    _fetchStatus();
   }
 
   @override
@@ -225,8 +249,8 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
                       const SizedBox(height: 10),
                       ElevatedButton.icon(
                         onPressed: () {
-                          FirestoreUser.sendMessageToUser(widget.applicantId,
-                              widget.jobId, messageController.text);
+                          sendMessageToUser(widget.applicantId, widget.jobId,
+                              messageController.text);
                         },
                         icon: const Icon(Icons.send),
                         label: const Text("Send"),
