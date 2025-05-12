@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:serategna/employee/job_detail.dart';
+import 'package:serategna/firebase/firebasefirestore.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -10,8 +11,13 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final TextEditingController _searchController = TextEditingController();
+  late final TextEditingController _searchController;
   String _searchQuery = "";
+  @override
+  void initState() {
+    _searchController = TextEditingController();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +45,7 @@ class _HomeState extends State<Home> {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('jobs').snapshots(),
+              stream: FirestoreJobs.getJobStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

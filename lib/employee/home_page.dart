@@ -18,7 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
-  late final List<String> userSkills;
+  List<String> userSkills = [];
   final List<String> expandedSkills = [];
 
   void _fetchUserSkills() async {
@@ -95,8 +95,6 @@ class _HomePageState extends State<HomePage> {
                     deadline = deadlineTimestamp.toDate();
                     log(deadline.toString());
                   }
-                  
-                  
 
                   bool matchesSkill = userSkills.any((skill) =>
                       job['title']
