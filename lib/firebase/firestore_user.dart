@@ -315,4 +315,19 @@ class FirestoreUser {
       return null;
     }
   }
+
+  Future<void> saveImageUrlToUserDocument(String imageUrl) async {
+  final user = FirebaseAuth.instance.currentUser;
+
+  if (user == null) {
+    throw Exception("No user is currently logged in.");
+  }
+
+  final userDocRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+  await userDocRef.update({
+    'imageUrl': imageUrl,
+  });
+}
+
 }
