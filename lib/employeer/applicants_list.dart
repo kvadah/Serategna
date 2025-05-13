@@ -37,6 +37,7 @@ class ApplicantsListPage extends StatelessWidget {
               String email = applicantData['email'] ?? 'Unknown';
               String phone = applicantData['phone'] ?? 'Unknown';
               String about = applicantData['about'] ?? 'No details';
+              String? imageUrl = applicantData['imageUrl'];
               String appliedAtDate = '';
               Timestamp timestamp = applicantData['appliedAt'];
               DateTime dateTime = timestamp.toDate();
@@ -68,12 +69,19 @@ class ApplicantsListPage extends StatelessWidget {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              child: Image.asset(
-                                'assets/images/black_logo_transparent-removebg-preview.png',
-                                width: 20,
-                                height: 20,
-                                fit: BoxFit.cover,
-                              ),
+                              child: imageUrl != null
+                                  ? Image.network(
+                                      imageUrl,
+                                      width: 20,
+                                      height: 20,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      'assets/images/black_logo_transparent-removebg-preview.png',
+                                      width: 20,
+                                      height: 20,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                             const SizedBox(width: 8),
                             Text(

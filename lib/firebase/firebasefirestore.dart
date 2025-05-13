@@ -86,7 +86,7 @@ class FirestoreJobs {
       String name = userDoc.get('fullName');
       String email = userDoc.get('email');
       String phone = userDoc.get('phone');
-
+      String imageUrl = userDoc.get('imageUrl');
       // Fetch job details
       DocumentSnapshot jobDoc =
           await _firestore.collection('jobs').doc(jobId).get();
@@ -106,6 +106,7 @@ class FirestoreJobs {
         'phone': phone,
         'about': about,
         'status': 'new',
+        'imageUrl': imageUrl,
         'appliedAt': FieldValue.serverTimestamp(),
       });
 

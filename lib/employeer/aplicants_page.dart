@@ -66,46 +66,50 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                           int newApplicants = snapshot.data ?? 0;
 
                           return Stack(children: [
-                            Card(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    right: 20.0, bottom: 10, left: 8, top: 8),
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ApplicantsListPage(
-                                                jobId: jobData['jobid']),
-                                      ),
-                                    ).then((_) {
-                                      FirestoreJobs.changeApplicantStatusAsRead(
-                                          jobData['jobid']);
-                                    });
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          'Title: ${jobData['title'] ?? 'Unknown'}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold)),
-                                      Text(
-                                          jobData['description'] ??
-                                              'No description',
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis),
-                                      const SizedBox(height: 10),
-                                      Text('Posted at: $appliedAtDate',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontStyle: FontStyle.italic)),
-                                    ],
+                            SizedBox(
+                              width: double.infinity,
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      right: 20.0, bottom: 10, left: 8, top: 8),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ApplicantsListPage(
+                                                  jobId: jobData['jobid']),
+                                        ),
+                                      ).then((_) {
+                                        FirestoreJobs
+                                            .changeApplicantStatusAsRead(
+                                                jobData['jobid']);
+                                      });
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            'Title: ${jobData['title'] ?? 'Unknown'}',
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold)),
+                                        Text(
+                                            jobData['description'] ??
+                                                'No description',
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis),
+                                        const SizedBox(height: 10),
+                                        Text('Posted at: $appliedAtDate',
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontStyle: FontStyle.italic)),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

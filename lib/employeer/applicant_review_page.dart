@@ -155,10 +155,10 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
                     children: [
                       CircleAvatar(
                         radius: 60,
-                        backgroundImage: profileImageUrl.isNotEmpty
-                            ? NetworkImage(profileImageUrl)
+                        backgroundImage: data['imageUrl'] != null
+                            ? NetworkImage(data['imageUrl'])
                             : null,
-                        child: profileImageUrl.isEmpty
+                        child: data['imageUrl'].isEmpty
                             ? const Icon(Icons.person, size: 60)
                             : null,
                       ),
