@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:serategna/Cloudinary/cloudinary.dart';
+class CloudinaryService{
 
-Future<String?> uploadToCloudinary() async {
+static Future<String?> uploadToCloudinary() async {
   final result = await FilePicker.platform.pickFiles(type: FileType.image);
   if (result == null || result.files.single.path == null) return null;
 
@@ -27,4 +28,6 @@ Future<String?> uploadToCloudinary() async {
     print("Upload failed: ${data['error']}");
     return null;
   }
+}
+
 }

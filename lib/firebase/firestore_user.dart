@@ -316,7 +316,7 @@ class FirestoreUser {
     }
   }
 
-  Future<void> saveImageUrlToUserDocument(String imageUrl) async {
+  static Future<void> saveImageUrlToUserDocument(String imageUrl) async {
   final user = FirebaseAuth.instance.currentUser;
 
   if (user == null) {

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:serategna/Cloudinary/cloudinary_service.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 import 'package:serategna/signin.dart';
@@ -56,7 +57,7 @@ class _ProfileState extends State<Profile> {
 
           final userData = snapshot.data!;
           bio = userData["bio"] ?? "No Bio Available";
-          profileImageUrl = userData["profileImage"] ?? "";
+          profileImageUrl = userData["imageUrl"] ?? "";
           skills = userData["skills"] ?? [];
 
           return SingleChildScrollView(
@@ -66,7 +67,10 @@ class _ProfileState extends State<Profile> {
               children: [
                 // Profile Image Section
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () async {
+                    var imageUrl = await CloudinaryService.uploadToCloudinary();
+                    FirestoreUser.saveImageUrlToUserDocument(imageUrl!);
+                  },
                   child: CircleAvatar(
                     radius: 60,
                     backgroundImage: profileImageUrl.isNotEmpty
