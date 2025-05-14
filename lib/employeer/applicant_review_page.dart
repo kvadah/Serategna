@@ -20,10 +20,13 @@ class ApplicantReviewPage extends StatefulWidget {
 }
 
 class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
-  String profileImageUrl = "";
+  String? profileImageUrl = "";
+  String? email = '';
+  String? fullname = '';
   String? selectedStatus;
-  String companyName = 'kk';
-  String title = 'll';
+  String companyName = '';
+  String? about = '';
+  String title = '';
   String message = '';
   bool isSendingMessage = false;
   bool isLoadingStatus = true;
@@ -148,6 +151,10 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
                 }
 
                 final data = snapshot.data!.data() as Map<String, dynamic>;
+                fullname = data['fullName'];
+                profileImageUrl = data['imageUrl'];
+                email = data['email'];
+                about = data['about'];
 
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
@@ -155,22 +162,22 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
                     children: [
                       CircleAvatar(
                         radius: 60,
-                        backgroundImage: data['imageUrl'] != null
-                            ? NetworkImage(data['imageUrl'])
+                        backgroundImage: profileImageUrl != null
+                            ? NetworkImage(profileImageUrl!)
                             : null,
-                        child: data['imageUrl'].isEmpty
+                        child: profileImageUrl!.isEmpty
                             ? const Icon(Icons.person, size: 60)
                             : null,
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        "${data['fullName'] ?? 'N/A'}",
+                        fullname ?? 'N/A',
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        "${data['email'] ?? 'N/A'}",
+                        email ?? 'N/A',
                         style: const TextStyle(fontSize: 16),
                       ),
                       const SizedBox(height: 20),
@@ -192,7 +199,7 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              data['about'] ?? 'No additional information.',
+                              about ?? 'No additional information.',
                               style: const TextStyle(fontSize: 14),
                             ),
                           ],
