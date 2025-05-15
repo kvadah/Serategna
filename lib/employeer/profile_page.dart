@@ -57,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     onTap: () async {
                       var imageUrl =
                           await CloudinaryService.uploadToCloudinary();
-                      FirestoreJobs.saveImageUrlToJobDocument(imageUrl!);
+                      await FirestoreJobs.saveImageUrlToJobDocument(imageUrl!);
                     },
                     child: CircleAvatar(
                       radius: 60,

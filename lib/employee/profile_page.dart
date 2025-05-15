@@ -24,6 +24,7 @@ class _ProfileState extends State<Profile> {
   String profileImageUrl = "";
   List<dynamic> skills = [];
   bool _isloggingOut = false;
+  bool isUploading = false;
 
   void _signout() async {
     setState(() {
@@ -60,75 +61,84 @@ class _ProfileState extends State<Profile> {
           profileImageUrl = userData["imageUrl"] ?? "";
           skills = userData["skills"] ?? [];
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Profile Image Section
-                GestureDetector(
-                  onTap: () async {
-                    var imageUrl = await CloudinaryService.uploadToCloudinary();
-                    FirestoreUser.saveImageUrlToUserDocument(imageUrl!);
-                  },
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundImage: profileImageUrl.isNotEmpty
-                        ? NetworkImage(profileImageUrl)
-                        : null,
-                    child: profileImageUrl.isEmpty
-                        ? const Icon(Icons.person, size: 60)
-                        : null,
+          return isUploading
+              ? const CircularProgressIndicator()
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Profile Image Section
+                      GestureDetector(
+                        onTap: () async {
+                          var imageUrl =
+                              await CloudinaryService.uploadToCloudinary();
+                          if (imageUrl != null) {}
+                          await FirestoreUser.saveImageUrlToUserDocument(
+                              imageUrl!);
+                          setState(() {
+                            profileImageUrl = imageUrl;
+                            isUploading = false; // Refresh UI with new image
+                          });
+                        },
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundImage: profileImageUrl.isNotEmpty
+                              ? NetworkImage(profileImageUrl)
+                              : null,
+                          child: profileImageUrl.isEmpty
+                              ? const Icon(Icons.person, size: 60)
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Bio Section
+                      BioSection(
+                        initialBio: bio,
+                        onBioUpdated: _updateBio,
+                      ),
+
+                      // Full Name
+                      _buildProfileCard(Icons.person, "Full Name",
+                          userData["fullName"] ?? "No Name"),
+                      // Email
+                      _buildProfileCard(Icons.email, "Email",
+                          userData["email"] ?? "No Email"),
+                      // Phone
+                      _buildProfileCard(Icons.phone, "Phone",
+                          userData["phone"] ?? "No Phone"),
+
+                      // Skills Section
+                      SkillsSection(
+                        skills: List<String>.from(skills),
+                        onSkillAdded: _addSkill,
+                        onSkillRemoved: _removeSkill,
+                      ),
+                      TextButton(
+                          onPressed: () {
+                            _signout();
+                          },
+                          child: _isloggingOut
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.black,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'Log out',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ))
+                    ],
                   ),
-                ),
-                const SizedBox(height: 16),
-
-                // Bio Section
-                BioSection(
-                  initialBio: bio,
-                  onBioUpdated: _updateBio,
-                ),
-
-                // Full Name
-                _buildProfileCard(Icons.person, "Full Name",
-                    userData["fullName"] ?? "No Name"),
-                // Email
-                _buildProfileCard(
-                    Icons.email, "Email", userData["email"] ?? "No Email"),
-                // Phone
-                _buildProfileCard(
-                    Icons.phone, "Phone", userData["phone"] ?? "No Phone"),
-
-                // Skills Section
-                SkillsSection(
-                  skills: List<String>.from(skills),
-                  onSkillAdded: _addSkill,
-                  onSkillRemoved: _removeSkill,
-                ),
-                TextButton(
-                    onPressed: () {
-                      _signout();
-                    },
-                    child: _isloggingOut
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.black,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text(
-                            'Log out',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ))
-              ],
-            ),
-          );
+                );
         },
       ),
     );

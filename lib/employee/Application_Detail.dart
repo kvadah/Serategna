@@ -38,7 +38,7 @@ class _ApplicationDetailsPageState extends State<ApplicationDetailsPage> {
           }
 
           final data = snapshot.data!;
-          final profileImageUrl = data['profileImageUrl'] ?? '';
+          final profileImageUrl = data['logo'] ?? '';
           final companyName = data['company'] ?? 'Unknown';
           final jobTitle = data['title'] ?? 'Unknown';
           final status = data['status'] ?? 'PENDING';
