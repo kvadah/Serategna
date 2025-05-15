@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:serategna/Cloudinary/cloudinary_service.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firebasefirestore.dart';
 import 'package:serategna/signin.dart';
@@ -52,14 +53,21 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundImage: companyData!["logo"] != null
-                        ? NetworkImage(companyData!["logo"])
-                        : null,
-                    child: companyData!["logo"] == null
-                        ? const Icon(Icons.business, size: 60)
-                        : null,
+                  GestureDetector(
+                    onTap: () async {
+                      var imageUrl =
+                          await CloudinaryService.uploadToCloudinary();
+                      FirestoreJobs.saveImageUrlToJobDocument(imageUrl!);
+                    },
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundImage: companyData!["logo"] != null
+                          ? NetworkImage(companyData!["logo"])
+                          : null,
+                      child: companyData!["logo"] == null
+                          ? const Icon(Icons.business, size: 60)
+                          : null,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(

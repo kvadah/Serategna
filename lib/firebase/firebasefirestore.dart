@@ -205,4 +205,19 @@ class FirestoreJobs {
         .snapshots()
         .map((snapshot) => snapshot.docs.length);
   }
+
+  static Future<void> saveImageUrlToJobDocument(String imageUrl) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      throw Exception("No user is currently logged in.");
+    }
+
+    final userDocRef =
+        FirebaseFirestore.instance.collection('companies').doc(user.uid);
+
+    await userDocRef.update({
+      'logo': imageUrl,
+    });
+  }
 }
