@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:serategna/Cloudinary/cloudinary_service.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firestore_user.dart';
@@ -62,7 +63,7 @@ class _ProfileState extends State<Profile> {
           skills = userData["skills"] ?? [];
 
           return isUploading
-              ? const CircularProgressIndicator()
+              ? const Center (child:  CircularProgressIndicator())
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -71,13 +72,22 @@ class _ProfileState extends State<Profile> {
                       // Profile Image Section
                       GestureDetector(
                         onTap: () async {
-                          var imageUrl =
-                              await CloudinaryService.uploadToCloudinary();
-                          if (imageUrl != null) {}
-                          await FirestoreUser.saveImageUrlToUserDocument(
-                              imageUrl!);
+                          final picker = ImagePicker();
+                          final picked = await picker.pickImage(
+                              source: ImageSource.gallery);
+                          if (picked == null) return;
                           setState(() {
-                            profileImageUrl = imageUrl;
+                            isUploading = true;
+                          });
+                          var imageUrl =
+                              await CloudinaryService.uploadToCloudinary(
+                                  picked);
+                          if (imageUrl != null) {
+                            await FirestoreUser.saveImageUrlToUserDocument(
+                                imageUrl!);
+                          }
+                          setState(() {
+                            profileImageUrl = imageUrl!;
                             isUploading = false; // Refresh UI with new image
                           });
                         },

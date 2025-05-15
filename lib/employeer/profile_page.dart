@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:serategna/Cloudinary/cloudinary_service.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firebasefirestore.dart';
@@ -15,6 +16,8 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   User? user = Firebaseauth.getCurrentUser();
   Map<String, dynamic>? companyData;
+  bool isUploading = false;
+  String profileImageUrl = "";
 
   void _signout() async {
     await Firebaseauth.signOut();
@@ -34,6 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (data != null) {
       setState(() {
         companyData = data;
+        profileImageUrl = companyData?['logo'];
       });
     }
   }
@@ -48,57 +52,74 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: companyData == null
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      var imageUrl =
-                          await CloudinaryService.uploadToCloudinary();
-                      await FirestoreJobs.saveImageUrlToJobDocument(imageUrl!);
-                    },
-                    child: CircleAvatar(
-                      radius: 60,
-                      backgroundImage: companyData!["logo"] != null
-                          ? NetworkImage(companyData!["logo"])
-                          : null,
-                      child: companyData!["logo"] == null
-                          ? const Icon(Icons.business, size: 60)
-                          : null,
-                    ),
+          : isUploading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () async {
+                          final picker = ImagePicker();
+                          final picked = await picker.pickImage(
+                              source: ImageSource.gallery);
+                          if (picked == null) return;
+                          setState(() {
+                            isUploading = true;
+                          });
+                          var imageUrl =
+                              await CloudinaryService.uploadToCloudinary(
+                                  picked);
+                          if (imageUrl != null) {
+                            await FirestoreJobs.saveImageUrlToJobDocument(
+                                imageUrl!);
+                          }
+                          setState(() {
+                            profileImageUrl = imageUrl!;
+                            isUploading = false; // Refresh UI with new image
+                          });
+                        },
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundImage: profileImageUrl.isNotEmpty
+                              ? NetworkImage(profileImageUrl)
+                              : null,
+                          child: profileImageUrl.isEmpty
+                              ? const Icon(Icons.person, size: 60)
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        companyData!["fullName"] ?? "No Name",
+                        style: const TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        companyData!["about"] ?? "about",
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildProfileCard(Icons.location_on, "Location",
+                          companyData!["location"] ?? "No Location"),
+                      _buildProfileCard(Icons.email, "Email",
+                          companyData!["email"] ?? "No Email"),
+                      _buildProfileCard(Icons.phone, "Phone",
+                          companyData!["phone"] ?? "No Phone"),
+                      const SizedBox(height: 30),
+                      TextButton(
+                          onPressed: () {
+                            _signout();
+                          },
+                          child: const Text(
+                            'LogOut',
+                            style: TextStyle(color: Colors.blue, fontSize: 18),
+                          ))
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    companyData!["fullName"] ?? "No Name",
-                    style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    companyData!["about"] ?? "about",
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildProfileCard(Icons.location_on, "Location",
-                      companyData!["location"] ?? "No Location"),
-                  _buildProfileCard(Icons.email, "Email",
-                      companyData!["email"] ?? "No Email"),
-                  _buildProfileCard(Icons.phone, "Phone",
-                      companyData!["phone"] ?? "No Phone"),
-                  const SizedBox(height: 30),
-                  TextButton(
-                      onPressed: () {
-                        _signout();
-                      },
-                      child: const Text(
-                        'LogOut',
-                        style: TextStyle(color: Colors.blue, fontSize: 18),
-                      ))
-                ],
-              ),
-            ),
+                ),
     );
   }
 

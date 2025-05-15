@@ -11,10 +11,9 @@ class CloudinaryService {
   static const String uploadPreset = Cloudinary.presetName;
 
   /// Pick image, fix rotation, upload to Cloudinary, and return URL
-  static Future<String?> uploadToCloudinary() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked == null) return null;
+  static Future<String?> uploadToCloudinary(XFile picked) async {
+    
+    //if (picked == null) return null;
 
     final originalFile = File(picked.path);
     final fixedFile = await _fixImageRotation(originalFile);
