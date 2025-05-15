@@ -161,8 +161,15 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
-                                  child: Image.asset(
-                                    'assets/images/black_logo_transparent-removebg-preview.png',
+                                  child: Image(
+                                    image: (jobData['logo'] != null &&
+                                            jobData['logo']
+                                                .toString()
+                                                .isNotEmpty)
+                                        ? NetworkImage(jobData['logo'])
+                                        : const AssetImage(
+                                                'assets/images/black_logo_transparent-removebg-preview.png')
+                                            as ImageProvider,
                                     width: 20,
                                     height: 20,
                                     fit: BoxFit.cover,

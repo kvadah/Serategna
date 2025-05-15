@@ -12,6 +12,7 @@ class FirestoreJobs {
   static Future<void> addJobToCompanyAndJobsCollection(
       User? user,
       String title,
+      String logo,
       String jobType,
       String location,
       String description,
@@ -35,6 +36,7 @@ class FirestoreJobs {
         'description': description,
         'deadline': deadline != null ? Timestamp.fromDate(deadline) : null,
         'location': location,
+        'logo':logo,
         'totalApplicants': 0,
         'timeStamp': FieldValue.serverTimestamp(), // Optional, for timestamp
       });
@@ -219,5 +221,28 @@ class FirestoreJobs {
     await userDocRef.update({
       'logo': imageUrl,
     });
+  }
+
+ static  Future<String?> fetchCompanyLogo() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid != null) {
+        final doc = await FirebaseFirestore.instance
+            .collection('companies')
+            .doc(uid)
+            .get();
+        final data = doc.data();
+        if (data != null &&
+            data['logo'] != null &&
+            data['logo'].toString().isNotEmpty) {
+          return data['logo'];
+        }
+        return null;
+      }
+    } catch (e) {
+      log('Error fetching logo: $e');
+      return null;
+    }
+    return null;
   }
 }

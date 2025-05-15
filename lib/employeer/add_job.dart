@@ -49,9 +49,11 @@ class _AddJobPageState extends State<AddJobPage> {
       _isPosting = true;
     });
     User? user = Firebaseauth.getCurrentUser();
+    String? logo = await FirestoreJobs.fetchCompanyLogo();
     await FirestoreJobs.addJobToCompanyAndJobsCollection(
       user,
       _titleController.text,
+      logo!,
       selectedJobType!,
       _locationController.text,
       _descriptionController.text,
