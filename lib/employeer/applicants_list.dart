@@ -4,7 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:serategna/employeer/applicant_review_page.dart';
-import 'package:serategna/firebase/firebasefirestore.dart'; // For formatting date
+import 'package:serategna/firebase/firebasefirestore.dart';
+import 'package:serategna/firebase/firestore_user.dart'; // For formatting date
 
 class ApplicantsListPage extends StatelessWidget {
   final String jobId;
@@ -15,29 +16,29 @@ class ApplicantsListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Applicants")),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirestoreJobs.getJobApplicantsStream(jobId),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: FirestoreUser.getJobApplicantsStreamWithProfiles(jobId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text("No applicants yet."));
           }
 
           return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
+            itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
-              var doc = snapshot.data!.docs[index];
-              var applicantData = doc.data() as Map<String, dynamic>;
-              var applicantId = doc.id;
+              var applicantData = snapshot.data![index];
+
+              var applicantId = applicantData['uid'];
 
               String applicantName = applicantData['fullName'] ?? 'Unknown';
               String email = applicantData['email'] ?? 'Unknown';
               String phone = applicantData['phone'] ?? 'Unknown';
               String about = applicantData['about'] ?? 'No details';
-              String? imageUrl = applicantData['imageUrl'];
+              String? imageUrl = applicantData['imageUr'];
               String appliedAtDate = '';
               Timestamp timestamp = applicantData['appliedAt'];
               DateTime dateTime = timestamp.toDate();

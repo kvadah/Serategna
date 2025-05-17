@@ -24,7 +24,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
   Color chooseStatusColor(String status) {
     switch (status.toUpperCase()) {
       case 'PENDING':
-        return const Color.fromARGB(255, 248, 227, 35);
+        return  const Color.fromARGB(255, 248, 227, 35);
       case 'INTERVIEW SCHEDULED':
         return Colors.blueAccent;
       case 'REJECTED':

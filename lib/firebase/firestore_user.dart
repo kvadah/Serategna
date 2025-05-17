@@ -330,4 +330,39 @@ class FirestoreUser {
   });
 }
 
+
+  static Stream<List<Map<String, dynamic>>> getJobApplicantsStreamWithProfiles(String jobId) {
+    final firestore = FirebaseFirestore.instance;
+
+    return firestore
+        .collection('jobs')
+        .doc(jobId)
+        .collection('applicants')
+        .snapshots()
+        .asyncMap((applicantsSnapshot) async {
+          List<Map<String, dynamic>> applicantsWithProfiles = [];
+
+          for (var applicantDoc in applicantsSnapshot.docs) {
+            String uid = applicantDoc.id;
+            Map<String, dynamic> applicantData = applicantDoc.data();
+
+            // Fetch user profile
+            final userDoc = await firestore.collection('users').doc(uid).get();
+            final userData = userDoc.data();
+
+            if (userData != null) {
+              // Add imageUrl from user profile
+              applicantData['imageUr'] = userData['imageUrl'];
+            }
+
+            applicantData['uid'] = uid;
+
+            applicantsWithProfiles.add(applicantData);
+          }
+
+          return applicantsWithProfiles;
+        });
+  }
+
+
 }
