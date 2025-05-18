@@ -103,12 +103,10 @@ class FirestoreJobs {
 
       // Add applicant to job's applicants subcollection
       batch.set(applicantRef, {
-        'fullName': name,
-        'email': email,
-        'phone': phone,
+        
         'about': about,
         'status': 'new',
-        'imageUrl': imageUrl,
+        
         'appliedAt': FieldValue.serverTimestamp(),
       });
 

@@ -353,6 +353,10 @@ class FirestoreUser {
             if (userData != null) {
               // Add imageUrl from user profile
               applicantData['imageUr'] = userData['imageUrl'];
+               applicantData['name'] = userData['fullname'];
+                applicantData['Email'] = userData['email'];
+                 applicantData['phoneNo'] = userData['phone'];
+
             }
 
             applicantData['uid'] = uid;

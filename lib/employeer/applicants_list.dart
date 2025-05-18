@@ -34,9 +34,9 @@ class ApplicantsListPage extends StatelessWidget {
 
               var applicantId = applicantData['uid'];
 
-              String applicantName = applicantData['fullName'] ?? 'Unknown';
-              String email = applicantData['email'] ?? 'Unknown';
-              String phone = applicantData['phone'] ?? 'Unknown';
+              String applicantName = applicantData['name'] ?? 'Unknown';
+              String email = applicantData['Email'] ?? 'Unknown';
+              String phone = applicantData['phoneNo'] ?? 'Unknown';
               String about = applicantData['about'] ?? 'No details';
               String? imageUrl = applicantData['imageUr'];
               String appliedAtDate = '';
