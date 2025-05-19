@@ -162,8 +162,8 @@ class _HomePageState extends State<HomePage> {
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
                                   child: Image(
-                                    image: (jobData['logo'] != null &&
-                                            jobData['logo']
+                                    image: (FirestoreJobs.fetchLogoFromCompany(companyId) != null &&
+                                            FirestoreJobs.fetchLogoFromCompany(companyId)
                                                 .toString()
                                                 .isNotEmpty)
                                         ? NetworkImage(jobData['logo'])
