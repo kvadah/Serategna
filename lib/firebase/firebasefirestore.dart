@@ -85,10 +85,7 @@ class FirestoreJobs {
           await _firestore.collection('users').doc(userId).get();
       if (!userDoc.exists) throw Exception("User not found");
 
-      String name = userDoc.get('fullName');
-      String email = userDoc.get('email');
-      String phone = userDoc.get('phone');
-      String imageUrl = userDoc.get('imageUrl');
+      
       // Fetch job details
       DocumentSnapshot jobDoc =
           await _firestore.collection('jobs').doc(jobId).get();
