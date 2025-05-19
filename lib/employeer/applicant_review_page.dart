@@ -8,11 +8,13 @@ import 'package:serategna/firebase/firestore_user.dart';
 class ApplicantReviewPage extends StatefulWidget {
   final String applicantId;
   final String jobId;
+  final String? userProfile;
 
   const ApplicantReviewPage({
     super.key,
     required this.applicantId,
     required this.jobId,
+    required this.userProfile,
   });
 
   @override
@@ -152,7 +154,7 @@ class _ApplicantReviewPageState extends State<ApplicantReviewPage> {
 
                 final data = snapshot.data!.data() as Map<String, dynamic>;
                 fullname = data['fullName'];
-                profileImageUrl = data['imageUrl'];
+                profileImageUrl = widget.userProfile;
                 email = data['email'];
                 about = data['about'];
 

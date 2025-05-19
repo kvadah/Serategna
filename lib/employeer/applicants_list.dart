@@ -51,7 +51,7 @@ class ApplicantsListPage extends StatelessWidget {
                       MaterialPageRoute(
                           builder: (context) => ApplicantReviewPage(
                                 applicantId: applicantId,
-                                jobId: jobId,
+                                jobId: jobId, userProfile: imageUrl,
                               )));
 
                   log(applicantId);
