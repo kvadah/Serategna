@@ -33,6 +33,25 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
         return Colors.green;
     }
   }
+  Future<List<Map<String, dynamic>>> fetchApplicationsWithCompanyId() async {
+  final snapshot = await FirestoreUser.getUserApplicationsStream().first;
+
+  return await Future.wait(snapshot.docs.map((doc) async {
+    var applicationData = doc.data() as Map<String, dynamic>;
+    var jobId = doc.id;
+
+    applicationData['applicationId'] = jobId;
+
+    // Fetch the corresponding job document
+    final jobDoc = await FirebaseFirestore.instance.collection('jobs').doc(jobId).get();
+    final companyId = jobDoc.data()?['companyId'];
+
+    applicationData['companyId'] = companyId;
+
+    return applicationData;
+  }));
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,21 +60,18 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
         title: const Text('My Applications',
             style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _applicationsStream,
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+  future: fetchApplicationsWithCompanyId(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No applications found.'));
           }
 
-          var applications = snapshot.data!.docs.map((doc) {
-            var applicationData = doc.data() as Map<String, dynamic>;
-            applicationData['applicationId'] = doc.id; // Add applicationId
-            return applicationData;
-          }).toList();
+          var applications = snapshot.data!;
+            
 
           return ListView.builder(
             itemCount: applications.length,
