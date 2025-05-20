@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:serategna/employee/Application_Detail.dart';
+import 'package:serategna/firebase/firebasefirestore.dart';
 import 'package:serategna/firebase/firestore_user.dart';
 
 class ApplicationsPage extends StatefulWidget {
@@ -80,6 +81,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
 
               // Format the appliedAt date
               String appliedAtDate = 'Unknown';
+              
               if (applicationData['appliedAt'] != null) {
                 Timestamp timestamp = applicationData['appliedAt'];
                 DateTime dateTime = timestamp.toDate();
@@ -111,8 +113,8 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
                                   child: Image(
-                                    image: (applicationData['logo'] != null &&
-                                            applicationData['logo']
+                                    image: (FirestoreJobs.fetchLogoFromCompany(applicationData['companyId']) != null &&
+                                            FirestoreJobs.fetchLogoFromCompany(applicationData['companyId'])
                                                 .toString()
                                                 .isNotEmpty)
                                         ? NetworkImage(applicationData['logo'])

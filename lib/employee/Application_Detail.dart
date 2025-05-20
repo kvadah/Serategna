@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:serategna/firebase/firebasefirestore.dart';
 import 'package:serategna/firebase/firestore_user.dart'; // where your fetchApplicationDetails function lives
 
 class ApplicationDetailsPage extends StatefulWidget {
   final String applicationId;
-
-  const ApplicationDetailsPage({super.key, required this.applicationId});
+final String companyId;
+  const ApplicationDetailsPage({super.key, required this.applicationId, required this.companyId});
 
   @override
   State<ApplicationDetailsPage> createState() => _ApplicationDetailsPageState();
@@ -14,12 +15,17 @@ class ApplicationDetailsPage extends StatefulWidget {
 
 class _ApplicationDetailsPageState extends State<ApplicationDetailsPage> {
   late Future<Map<String, dynamic>?> _applicationFuture;
+  String profileImageUrl='';
 
   @override
   void initState() {
     super.initState();
     _applicationFuture =
         FirestoreUser.fetchApplicationDetails(widget.applicationId);
+        getProfileurl();
+  }
+  Future<void> getProfileurl() async {
+    profileImageUrl=await FirestoreJobs.fetchLogoFromCompany(widget.companyId)??'';
   }
 
   @override
@@ -38,7 +44,7 @@ class _ApplicationDetailsPageState extends State<ApplicationDetailsPage> {
           }
 
           final data = snapshot.data!;
-          final profileImageUrl = data['logo'] ?? '';
+         
           final companyName = data['company'] ?? 'Unknown';
           final jobTitle = data['title'] ?? 'Unknown';
           final status = data['status'] ?? 'PENDING';
