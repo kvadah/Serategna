@@ -6,8 +6,9 @@ import 'package:serategna/firebase/firestore_user.dart'; // where your fetchAppl
 
 class ApplicationDetailsPage extends StatefulWidget {
   final String applicationId;
-final String companyId;
-  const ApplicationDetailsPage({super.key, required this.applicationId, required this.companyId});
+  final String? companyId;
+  const ApplicationDetailsPage(
+      {super.key, required this.applicationId, required this.companyId});
 
   @override
   State<ApplicationDetailsPage> createState() => _ApplicationDetailsPageState();
@@ -15,17 +16,22 @@ final String companyId;
 
 class _ApplicationDetailsPageState extends State<ApplicationDetailsPage> {
   late Future<Map<String, dynamic>?> _applicationFuture;
-  String profileImageUrl='';
+  String profileImageUrl = '';
 
   @override
   void initState() {
     super.initState();
     _applicationFuture =
         FirestoreUser.fetchApplicationDetails(widget.applicationId);
-        getProfileurl();
+    getProfileurl();
   }
+
   Future<void> getProfileurl() async {
-    profileImageUrl=await FirestoreJobs.fetchLogoFromCompany(widget.companyId)??'';
+    if (widget.companyId != null &&
+        widget.companyId!.toLowerCase() != 'unknown') {
+      profileImageUrl =
+          await FirestoreJobs.fetchLogoFromCompany(widget.companyId) ?? '';
+    }
   }
 
   @override
@@ -44,7 +50,7 @@ class _ApplicationDetailsPageState extends State<ApplicationDetailsPage> {
           }
 
           final data = snapshot.data!;
-         
+
           final companyName = data['company'] ?? 'Unknown';
           final jobTitle = data['title'] ?? 'Unknown';
           final status = data['status'] ?? 'PENDING';

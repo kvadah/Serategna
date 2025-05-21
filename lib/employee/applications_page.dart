@@ -13,13 +13,9 @@ class ApplicationsPage extends StatefulWidget {
 }
 
 class _ApplicationsPageState extends State<ApplicationsPage> {
-  late Stream<QuerySnapshot> _applicationsStream;
-
   @override
   void initState() {
     super.initState();
-    _applicationsStream = FirestoreUser
-        .getUserApplicationsStream(); // Set the stream for user applications
   }
 
   Color chooseStatusColor(String status) {
@@ -95,7 +91,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                     MaterialPageRoute(
                       builder: (context) => ApplicationDetailsPage(
                         applicationId: applicationData['applicationId'],
-                        companyId: applicationData['companyId'],
+                        companyId: applicationData['companyId'] ,
                       ),
                     ),
                   );
@@ -113,8 +109,10 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                             Row(
                               children: [
                                 FutureBuilder<String?>(
-                                  future: FirestoreJobs.fetchLogoFromCompany(
-                                      applicationData['companyId']),
+                                  future: applicationData['companyId'] != null
+                                      ? FirestoreJobs.fetchLogoFromCompany(
+                                          applicationData['companyId'])
+                                      : Future.value(null),
                                   builder: (context, snapshot) {
                                     if (snapshot.connectionState ==
                                         ConnectionState.waiting) {
@@ -184,8 +182,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color:
-                                  chooseStatusColor(applicationData['status']),
+                              color: Colors.blueAccent,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
