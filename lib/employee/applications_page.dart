@@ -25,7 +25,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
   Color chooseStatusColor(String status) {
     switch (status.toUpperCase()) {
       case 'PENDING':
-        return  const Color.fromARGB(255, 248, 227, 35);
+        return const Color.fromARGB(255, 248, 227, 35);
       case 'INTERVIEW SCHEDULED':
         return Colors.blueAccent;
       case 'REJECTED':
@@ -34,25 +34,26 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
         return Colors.green;
     }
   }
+
   Future<List<Map<String, dynamic>>> fetchApplicationsWithCompanyId() async {
-  final snapshot = await FirestoreUser.getUserApplicationsStream().first;
+    final snapshot = await FirestoreUser.getUserApplicationsStream().first;
 
-  return await Future.wait(snapshot.docs.map((doc) async {
-    var applicationData = doc.data() as Map<String, dynamic>;
-    var jobId = doc.id;
+    return await Future.wait(snapshot.docs.map((doc) async {
+      var applicationData = doc.data() as Map<String, dynamic>;
+      var jobId = doc.id;
 
-    applicationData['applicationId'] = jobId;
+      applicationData['applicationId'] = jobId;
 
-    // Fetch the corresponding job document
-    final jobDoc = await FirebaseFirestore.instance.collection('jobs').doc(jobId).get();
-    final companyId = jobDoc.data()?['companyId'];
+      // Fetch the corresponding job document
+      final jobDoc =
+          await FirebaseFirestore.instance.collection('jobs').doc(jobId).get();
+      final companyId = jobDoc.data()?['companyId'];
 
-    applicationData['companyId'] = companyId;
+      applicationData['companyId'] = companyId;
 
-    return applicationData;
-  }));
-}
-
+      return applicationData;
+    }));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +63,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
             style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-  future: fetchApplicationsWithCompanyId(),
+        future: fetchApplicationsWithCompanyId(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -72,7 +73,6 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
           }
 
           var applications = snapshot.data!;
-            
 
           return ListView.builder(
             itemCount: applications.length,
@@ -81,7 +81,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
 
               // Format the appliedAt date
               String appliedAtDate = 'Unknown';
-              
+
               if (applicationData['appliedAt'] != null) {
                 Timestamp timestamp = applicationData['appliedAt'];
                 DateTime dateTime = timestamp.toDate();
@@ -94,7 +94,9 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ApplicationDetailsPage(
-                          applicationId: applicationData['applicationId']),
+                        applicationId: applicationData['applicationId'],
+                        companyId: applicationData['companyId'],
+                      ),
                     ),
                   );
                 },
@@ -110,21 +112,41 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                           children: [
                             Row(
                               children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Image(
-                                    image: (FirestoreJobs.fetchLogoFromCompany(applicationData['companyId']) != null &&
-                                            FirestoreJobs.fetchLogoFromCompany(applicationData['companyId'])
-                                                .toString()
-                                                .isNotEmpty)
-                                        ? NetworkImage(applicationData['logo'])
-                                        : const AssetImage(
-                                                'assets/images/black_logo_transparent-removebg-preview.png')
-                                            as ImageProvider,
-                                    width: 20,
-                                    height: 20,
-                                    fit: BoxFit.cover,
-                                  ),
+                                FutureBuilder<String?>(
+                                  future: FirestoreJobs.fetchLogoFromCompany(
+                                      applicationData['companyId']),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2),
+                                      );
+                                    } else if (snapshot.hasData &&
+                                        snapshot.data!.isNotEmpty) {
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.network(
+                                          snapshot.data!,
+                                          width: 20,
+                                          height: 20,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      );
+                                    } else {
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.asset(
+                                          'assets/images/black_logo_transparent-removebg-preview.png',
+                                          width: 20,
+                                          height: 20,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                                 const SizedBox(width: 8),
                                 Text(

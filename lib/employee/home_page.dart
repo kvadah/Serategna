@@ -159,21 +159,44 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             Row(
                               children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Image(
-                                    image: (FirestoreJobs.fetchLogoFromCompany(companyId) != null &&
-                                            FirestoreJobs.fetchLogoFromCompany(companyId)
-                                                .toString()
-                                                .isNotEmpty)
-                                        ? NetworkImage(jobData['logo'])
-                                        : const AssetImage(
-                                                'assets/images/black_logo_transparent-removebg-preview.png')
-                                            as ImageProvider,
-                                    width: 20,
-                                    height: 20,
-                                    fit: BoxFit.cover,
-                                  ),
+                                FutureBuilder<String?>(
+                                  future: FirestoreJobs.fetchLogoFromCompany(
+                                      companyId),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.asset(
+                                          'assets/images/black_logo_transparent-removebg-preview.png',
+                                          width: 20,
+                                          height: 20,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      );
+                                    } else if (snapshot.hasData &&
+                                        snapshot.data!.isNotEmpty) {
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.network(
+                                          snapshot.data!,
+                                          width: 20,
+                                          height: 20,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      );
+                                    } else {
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.asset(
+                                          'assets/images/black_logo_transparent-removebg-preview.png',
+                                          width: 20,
+                                          height: 20,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                                 const SizedBox(width: 8),
                                 TextButton(
