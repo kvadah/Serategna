@@ -84,7 +84,7 @@ class _ProfileState extends State<Profile> {
                                   picked);
                           if (imageUrl != null) {
                             await FirestoreUser.saveImageUrlToUserDocument(
-                                imageUrl!);
+                                imageUrl);
                           }
                           setState(() {
                             profileImageUrl = imageUrl!;

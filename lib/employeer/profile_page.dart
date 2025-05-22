@@ -73,7 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   picked);
                           if (imageUrl != null) {
                             await FirestoreJobs.saveImageUrlToJobDocument(
-                                imageUrl!);
+                                imageUrl);
                           }
                           setState(() {
                             profileImageUrl = imageUrl!;

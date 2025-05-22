@@ -1,10 +1,8 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:serategna/employeer/applicant_review_page.dart';
-import 'package:serategna/firebase/firebasefirestore.dart';
 import 'package:serategna/firebase/firestore_user.dart'; // For formatting date
 
 class ApplicantsListPage extends StatelessWidget {

@@ -87,13 +87,13 @@ class _CompanyJobsPageState extends State<CompanyJobsPage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            companyData!["fullName"] ?? "No Name",
+                            '${companyData?["fullName"] ?? "No Name"}',
                             style: const TextStyle(
                                 fontSize: 22, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            companyData!["about"] ?? "About this company",
+                            '${companyData?["about"] ?? "No About"}',
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 16),

@@ -12,7 +12,6 @@ class FirestoreJobs {
   static Future<void> addJobToCompanyAndJobsCollection(
       User? user,
       String title,
-      String logo,
       String jobType,
       String location,
       String description,
@@ -84,7 +83,6 @@ class FirestoreJobs {
           await _firestore.collection('users').doc(userId).get();
       if (!userDoc.exists) throw Exception("User not found");
 
-      
       // Fetch job details
       DocumentSnapshot jobDoc =
           await _firestore.collection('jobs').doc(jobId).get();
@@ -99,10 +97,8 @@ class FirestoreJobs {
 
       // Add applicant to job's applicants subcollection
       batch.set(applicantRef, {
-        
         'about': about,
         'status': 'new',
-        
         'appliedAt': FieldValue.serverTimestamp(),
       });
 
@@ -217,32 +213,12 @@ class FirestoreJobs {
     });
   }
 
- static  Future<String?> fetchCompanyLogo() async {
+  
+
+  static Future<String?> fetchLogoFromCompany(String? companyId) async {
     try {
-      final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid != null) {
-        final doc = await FirebaseFirestore.instance
-            .collection('companies')
-            .doc(uid)
-            .get();
-        final data = doc.data();
-        if (data != null &&
-            data['logo'] != null &&
-            data['logo'].toString().isNotEmpty) {
-          return data['logo'];
-        }
-        return null;
-      }
-    } catch (e) {
-      log('Error fetching logo: $e');
-      return null;
-    }
-    return null;
-  }
-  static  Future<String?> fetchLogoFromCompany(String? companyId) async {
-    try {
-      
       if (companyId != null) {
+        if (companyId.isEmpty) return null;
         final doc = await FirebaseFirestore.instance
             .collection('companies')
             .doc(companyId)
