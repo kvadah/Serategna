@@ -149,7 +149,11 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.job['title']!)),
+      appBar: AppBar(
+        title: Text(widget.job['companyName']!,
+            style: const TextStyle(fontWeight: FontWeight.bold)),
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(

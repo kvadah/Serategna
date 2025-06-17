@@ -13,7 +13,7 @@ class ApplicantsListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Applicants")),
+      appBar: AppBar(title: const Text("Applicants",style: TextStyle(fontWeight: FontWeight.bold))),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: FirestoreUser.getJobApplicantsStreamWithProfiles(jobId),
         builder: (context, snapshot) {

@@ -59,6 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      
                       GestureDetector(
                         onTap: () async {
                           final picker = ImagePicker();

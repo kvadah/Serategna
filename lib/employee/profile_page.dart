@@ -43,7 +43,7 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Profile"),
+        title: const Text("Profile",style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       //future builder
       body: FutureBuilder<Map<String, dynamic>?>(

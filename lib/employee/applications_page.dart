@@ -91,7 +91,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                     MaterialPageRoute(
                       builder: (context) => ApplicationDetailsPage(
                         applicationId: applicationData['applicationId'],
-                        companyId: applicationData['companyId'] ,
+                        companyId: applicationData['companyId'],
                       ),
                     ),
                   );
@@ -182,7 +182,8 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.blueAccent,
+                              color:
+                                  chooseStatusColor(applicationData['status']),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
