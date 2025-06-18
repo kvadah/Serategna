@@ -62,7 +62,7 @@ class FirestoreJobs {
   }
 
   static Future<bool> applyForJob(
-      String userId, String jobId, String about) async {
+      String userId, String jobId, String cvUrl,String cvName, String about) async {
     try {
       // Reference to the applicant's document inside the job's applicants subcollection
       DocumentReference applicantRef = _firestore
@@ -99,6 +99,8 @@ class FirestoreJobs {
       batch.set(applicantRef, {
         'about': about,
         'status': 'new',
+        'cvUrl':cvUrl,
+        'cvname':cvName,
         'appliedAt': FieldValue.serverTimestamp(),
       });
 
@@ -212,8 +214,6 @@ class FirestoreJobs {
       'logo': imageUrl,
     });
   }
-
-  
 
   static Future<String?> fetchLogoFromCompany(String? companyId) async {
     try {

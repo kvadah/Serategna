@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:serategna/Cloudinary/cloudinary_service.dart';
 import 'package:serategna/firebase/firebaseauth.dart';
 import 'package:serategna/firebase/firebasefirestore.dart';
 
@@ -24,6 +25,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
   final TextEditingController _descriptionController = TextEditingController();
   bool _isJobExpired = false;
   bool _isAppliying = false;
+  String _cvName = '';
 
   final InternetConnectionChecker internetChecker =
       InternetConnectionChecker.createInstance();
@@ -36,7 +38,9 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
 
     if (result != null) {
       setState(() {
-        _cvFilePath = result.files.single.name;
+        _cvFilePath = result.files.single.path;
+         _cvName=result.files.single.name;
+
       });
     }
   }
@@ -119,9 +123,20 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
       });
       return;
     }
+    String? cvUrl;
+    try {
+      cvUrl = await CloudinaryService.uploadCVToCloudinary(_cvFilePath!);
+      log(cvUrl!);
+    } catch (e) {
+      print("Upload error: $e");
+      Fluttertoast.showToast(msg: "Upload failed. Try again.");
+      setState(() => _isAppliying = false);
+      return;
+    }
+
     User? user = Firebaseauth.getCurrentUser();
     bool alreadyapplied = await FirestoreJobs.applyForJob(
-        user!.uid, widget.jobId, _descriptionController.text.trim());
+        user!.uid, widget.jobId, cvUrl,_cvName, _descriptionController.text.trim());
     log(widget.jobId);
     if (alreadyapplied) {
       Fluttertoast.showToast(

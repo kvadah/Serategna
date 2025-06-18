@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
@@ -49,4 +50,31 @@ class CloudinaryService {
     final fixedFile = File(newPath);
     return await fixedFile.writeAsBytes(fixedBytes);
   }
+
+
+
+static Future<String?> uploadCVToCloudinary(String filePath) async {
+
+  final uri = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/raw/upload');
+
+  var request = http.MultipartRequest('POST', uri)
+    ..fields['upload_preset'] = uploadPreset
+    ..fields['folder'] = 'cvs' // optional folder
+    ..files.add(await http.MultipartFile.fromPath('file', filePath));
+
+  final response = await request.send();
+
+  if (response.statusCode == 200) {
+    final respData = await response.stream.bytesToString();
+    final jsonResp = json.decode(respData);
+    return jsonResp['secure_url']; // your CV URL
+  } else {
+    final error = await response.stream.bytesToString();
+    log("Cloudinary upload failed: $error");
+    return null;
+  }
+}
+
+
+
 }
